@@ -1,0 +1,13 @@
+#StarGate Atlantis
+##Project by Alemiz
+#Website: https://github.com/Alemiz112
+
+#Name of client that will be shown to server
+Client: lobby1
+
+Address: 127.0.0.1
+Port: 47007
+Password: 123456789
+
+#Interval in ticks to receive data from connection
+TickInterval: 2
