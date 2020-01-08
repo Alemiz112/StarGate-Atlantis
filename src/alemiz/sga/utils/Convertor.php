@@ -52,6 +52,9 @@ class Convertor{
         return explode("!", $packetString);
     }
 
+    /**
+     * @return string
+     */
     public function getPacketString() : string {
         return implode("!", $this->data);
     }

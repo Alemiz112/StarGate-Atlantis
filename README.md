@@ -12,7 +12,7 @@ More features will be added very soon
 ## 🔧API
 You can access StarGate-Atlantis by ``StarGateAtlantis::getInstance()``
 #### Avalibe Functions
-- ``transferPlayer(Player player, string server)`` This we use to transfer Player between servers
+- ``transferrPlayer(Player player, string server)`` This we use to transfer Player between servers
 - ``RegisterPacket(StarGatePacket packet)`` Really simple method for registring Packet
 - ``putPacket(StarGatePacket packet)`` This allows you to send packet. Packet must be registered first
 - ``kickPlayer(Player player, string reason)``  Kick player from any server connected to StarGate network
@@ -23,9 +23,9 @@ You can access StarGate-Atlantis by ``StarGateAtlantis::getInstance()``
 $player = PLUGIN::getInstance()->getPlayer("alemiz003");
 $server = "lobby2";
 
-StarGateAtlantis::getInstance()->transferrPlayer($player, $server);
+StarGateAtlantis::getInstance()->transferPlayer($player, $server);
 ```
-To more examples look [soon]()!
+To more examples look [here](https://github.com/Alemiz112/StarGate-Atlantis/tree/master/src/tests)!
 
 #### 📦Packet Handling
 Received Packets are handled by ``CustomPacketEvent``. Official Packets are handled (if needed) automaticly</br></br>
@@ -58,7 +58,7 @@ Functions:</br>
 - ``getPacketString()`` Returns packetString from array data
 
 - ``static getInt(string string)`` Returns Integer from String
-- ``static getPacketString(array strings)`` Returns packetString from given array
+- ``static getForcePacketString(array strings)`` Returns packetString from given array
 - ``static getPacketStringData(string packetString)`` Returns array data from given string
 
 ##### Example (nonstatic):

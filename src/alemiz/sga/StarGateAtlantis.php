@@ -158,7 +158,7 @@ class StarGateAtlantis extends PluginBase{
      * @param $player
      * @param string $server
      */
-    public function transferrPlayer($player, string $server){
+    public function transferPlayer($player, string $server){
         if (is_null($player)) return;
 
         $packet = new PlayerTransferPacket();
