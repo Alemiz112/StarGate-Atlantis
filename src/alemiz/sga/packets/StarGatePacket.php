@@ -35,6 +35,13 @@ abstract class StarGatePacket{
      */
     public $uuid;
 
+    /**
+     * This is another way of handling response.
+     * If is not null response will not be saved
+     * @var \Closure | null
+     */
+    protected $responseHandler = null;
+
     /** We use this functions to be able work with string compression
      * encode() => Converts data to string and save it tp $encoded
      * decode() => Converts from string in $encoded and saves it
@@ -73,5 +80,19 @@ abstract class StarGatePacket{
      */
     public function getID() : int {
         return $this->ID;
+    }
+
+    /**
+     * @param \Closure $responseHandler
+     */
+    public function setResponseHandler(\Closure $responseHandler): void{
+        $this->responseHandler = $responseHandler;
+    }
+
+    /**
+     * @return \Closure|null
+     */
+    public function getResponseHandler(): ?\Closure{
+        return $this->responseHandler;
     }
 }

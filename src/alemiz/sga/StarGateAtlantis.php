@@ -5,26 +5,24 @@ namespace alemiz\sga;
 use alemiz\sga\client\Client;
 use alemiz\sga\events\CustomPacketEvent;
 use alemiz\sga\packets\ConnectionInfoPacket;
+use alemiz\sga\packets\ForwardPacket;
 use alemiz\sga\packets\KickPacket;
 use alemiz\sga\packets\PingPacket;
+use alemiz\sga\packets\PlayerOnlinePacket;
 use alemiz\sga\packets\PlayerTransferPacket;
 use alemiz\sga\packets\StarGatePacket;
 use alemiz\sga\packets\WelcomePacket;
 use alemiz\sga\utils\Convertor;
 use pocketmine\Player;
 use pocketmine\plugin\PluginBase;
-use pocketmine\scheduler\Task;
-use pocketmine\Server;
 use pocketmine\utils\Config;
 
 class StarGateAtlantis extends PluginBase{
 
     /** @var Config */
     public $cfg;
-
     /** @var StarGateAtlantis */
     private static $instance;
-
     /** @var Client */
     private $client;
 
@@ -49,13 +47,6 @@ class StarGateAtlantis extends PluginBase{
         $this->initPackets();
 
         $this->client = new Client($this, $address, $port, $name, $password, $tickInterval);
-
-        /*$this->getScheduler()->scheduleDelayedTask(new class extends Task{
-            public function onRun(int $currentTick){
-                $player = Server::getInstance()->getPlayer("alemiz003");
-                StarGateAtlantis::getInstance()->kickPlayer($player, "§eTest xd");
-            }
-        }, 20*30);*/
     }
 
     public function onDisable(){
@@ -76,6 +67,12 @@ class StarGateAtlantis extends PluginBase{
         return $this->client;
     }
 
+    /**
+     * @return array
+     */
+    public function getResponses(): array{
+        return $this->client->getInterface()->getResponses();
+    }
 
     private function initPackets(){
         self::RegisterPacket(new WelcomePacket());
@@ -83,6 +80,8 @@ class StarGateAtlantis extends PluginBase{
         self::RegisterPacket(new ConnectionInfoPacket());
         self::RegisterPacket(new PlayerTransferPacket());
         self::RegisterPacket(new KickPacket());
+        self::RegisterPacket(new PlayerOnlinePacket());
+        self::RegisterPacket(new ForwardPacket());
     }
 
     /**
@@ -180,5 +179,48 @@ class StarGateAtlantis extends PluginBase{
         $packet->player = $player;
         $packet->reason = $reason;
         $this->putPacket($packet);
+    }
+
+    //TODO: Edit desc
+
+    /**
+     * We can check if player is online somewhere in network
+     * After sending packet we must handle response by UUID
+     * Example can be found in /tests/OnlineExample.java
+     * @param Player|string $player
+     * @param \Closure|null $responseHandler
+     * @return string|null
+     */
+    public function isOnline($player, \Closure $responseHandler = null){
+        if (is_null($player) || $player == "") return null;
+
+        $packet = new PlayerOnlinePacket();
+
+        if ($player instanceof Player){
+            $packet->player = $player;
+        }else $packet->customPlayer = $player;
+
+        if (!is_null($responseHandler)){
+            $packet->setResponseHandler($responseHandler);
+        }
+
+        return $this->putPacket($packet);
+    }
+
+    /**
+     * Using ForwardPacket you can forward packet to other client
+     * @param string $client
+     * @param StarGatePacket $packet
+     */
+    public function forwardPacket(string $client, StarGatePacket $packet){
+        $forwardPacket = new ForwardPacket();
+        $forwardPacket->client = $client;
+
+        if (!$packet->isEncoded){
+            $packet->encode();
+        }
+
+        $forwardPacket->encodedPacket = $packet->encoded;
+        $this->putPacket($forwardPacket);
     }
 }

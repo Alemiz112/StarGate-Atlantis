@@ -20,6 +20,11 @@ class ClientInterface{
     /** @var bool */
     private $read = false;
 
+    /** @var array  */
+    protected $responses = [];
+    /** @var \Closure[]  */
+    protected $responseHandlers = [];
+
     /**
      * ClientInterface constructor.
      * @param Client $client
@@ -88,6 +93,11 @@ class ClientInterface{
 
         $packetString = $packet->encoded;
         $uuid = uniqid();
+
+        if (!is_null($packet->getResponseHandler())){
+            $this->setResponseHandler($uuid, $packet->getResponseHandler());
+        }
+
         $this->connection->outWrite($packetString."!".$uuid);
         return $uuid;
     }
@@ -132,5 +142,37 @@ class ClientInterface{
 
     public function forceClose(){
         $this->connection->shutdownThread();
+    }
+
+
+    /**
+     * @return array
+     */
+    public function getResponses(): array{
+        return $this->responses;
+    }
+
+    /**
+     * @param string $uuid
+     * @return \Closure|null
+     */
+    public function getResponseHandler(string $uuid){
+        return (isset($this->responseHandlers[$uuid])? $this->responseHandlers[$uuid] : null);
+    }
+
+    /**
+     * @param string $uuid
+     * @param string $response
+     */
+    public function setResponse(string $uuid, string $response){
+        $this->responses[$uuid] = $response;
+    }
+
+    /**
+     * @param string $uuid
+     * @param \Closure $responseHandler
+     */
+    public function setResponseHandler(string $uuid, \Closure $responseHandler){
+        $this->responseHandlers[$uuid] = $responseHandler;
     }
 }

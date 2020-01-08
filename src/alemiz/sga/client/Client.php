@@ -4,6 +4,7 @@ namespace alemiz\sga\client;
 use alemiz\sga\packets\ConnectionInfoPacket;
 use alemiz\sga\packets\PingPacket;
 use alemiz\sga\StarGateAtlantis;
+use alemiz\sga\tasks\ResponseRemoveTask;
 use pocketmine\plugin\PluginLogger;
 use pocketmine\scheduler\Task;
 use pocketmine\Server;
@@ -76,8 +77,18 @@ class Client extends Task {
             return;
         }
 
-        if (strpos($message, "GATE_RESPONSE")){
-            //TODO: handle responses
+        if (strpos($message, "GATE_RESPONSE") !== false){
+            $data = explode(":", $message);
+            $uuid = $data[1];
+            $response = $data[2];
+
+            if (($handler = $this->interface->getResponseHandler($uuid)) !== null){
+                $handler($response);
+            }else{
+                $this->interface->setResponse($uuid, $response);
+                /* 20*30 is maximum tolerated delay*/
+                $this->sga->getScheduler()->scheduleDelayedTask(new ResponseRemoveTask($uuid), 20*30);
+            }
             return;
         }
 
@@ -87,12 +98,12 @@ class Client extends Task {
 
             switch ($packet->getPacketType()){
                 case ConnectionInfoPacket::CONNECTION_RECONNECT:
-                    $this->logger->info("§cWARNING: Reconnecting to StarGate server! Reason: §c".(($reason == null) ? "unknown" : $reason));
+                    $this->logger->info("§cWARNING: Reconnecting to StarGate server! Reason: §c".(($reason === null) ? "unknown" : $reason));
 
                     $this->interface->reconnect();
                     break;
                 case ConnectionInfoPacket::CONNECTION_CLOSED:
-                    $this->logger->info("§cWARNING: Connection to StarGate server was closed! Reason: §c".(($reason == null) ? "unknown" : $reason));
+                    $this->logger->info("§cWARNING: Connection to StarGate server was closed! Reason: §c".(($reason === null) ? "unknown" : $reason));
                     $this->interface->forceClose();
                     break;
             }
