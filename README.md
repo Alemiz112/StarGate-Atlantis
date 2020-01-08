@@ -1,6 +1,6 @@
 # StarGate-Atlantis
 > This is stable and fast plugin for pmmp that allows server connect to WaterDog plugin StarGate. It make easier communication between server. Includes API fur custom packets, transferring players and more 
-</br> Download [soon]()!
+</br> Download [here](https://poggit.pmmp.io/ci/Alemiz112/StarGate-Atlantis/)!
 
 ## 🎯Features:
 - Fast communication between servers
