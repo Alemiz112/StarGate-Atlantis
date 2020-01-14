@@ -12,7 +12,7 @@ More features will be added very soon
 ## 🔧API
 You can access StarGate-Atlantis by ``StarGateAtlantis::getInstance()``
 #### Avalibe Functions
-- ``transferrPlayer(Player player, string server)`` This we use to transfer Player between servers
+- ``transferPlayer(Player player, string server)`` This we use to transfer Player between servers
 - ``RegisterPacket(StarGatePacket packet)`` Really simple method for registring Packet
 - ``putPacket(StarGatePacket packet)`` This allows you to send packet. Packet must be registered first
 - ``kickPlayer(Player player, string reason)``  Kick player from any server connected to StarGate network
