@@ -35,8 +35,6 @@ class StarGateAtlantis extends PluginBase{
 		$this->saveDefaultConfig();
 		$this->cfg = $this->getConfig();
 
-        $this->getLogger()->info("§aEnabling StarGate Universe: Client");
-
         /* Starting Client for StarGate*/
         $name = $this->cfg->get("Client");
         $address = $this->cfg->get("Address");
