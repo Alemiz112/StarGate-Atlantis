@@ -12,6 +12,7 @@ use alemiz\sga\packets\PlayerOnlinePacket;
 use alemiz\sga\packets\PlayerTransferPacket;
 use alemiz\sga\packets\StarGatePacket;
 use alemiz\sga\packets\WelcomePacket;
+use alemiz\sga\tasks\ReconnectTask;
 use alemiz\sga\utils\Convertor;
 use pocketmine\Player;
 use pocketmine\plugin\PluginBase;
@@ -45,6 +46,7 @@ class StarGateAtlantis extends PluginBase{
         $this->initPackets();
 
         $this->client = new Client($this, $address, $port, $name, $password, $tickInterval);
+        $this->getScheduler()->scheduleDelayedRepeatingTask(new ReconnectTask($this), 30*20, 20*60*5);
     }
 
     public function onDisable(){

@@ -175,4 +175,26 @@ class ClientInterface{
     public function setResponseHandler(string $uuid, \Closure $responseHandler){
         $this->responseHandlers[$uuid] = $responseHandler;
     }
+
+
+    /**
+     * @return bool
+     */
+    public function canConnect(){
+        return $this->connection->canConnect();
+    }
+
+    /**
+     * @return bool
+     */
+    public function isConnected(){
+        return $this->connection->isConnected();
+    }
+
+    /**
+     * @return bool
+     */
+    public function isShutdown(){
+        return $this->connection->isShutdown();
+    }
 }

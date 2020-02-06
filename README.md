@@ -1,4 +1,5 @@
 # StarGate-Atlantis
+<a align="center" href="https://discord.gg/VsHXm2M"><img src="https://discordapp.com/api/guilds/574240965351571477/embed.png" alt="Discord server"/> [![](https://poggit.pmmp.io/shield.state/StarGate-Atlantis)](https://poggit.pmmp.io/p/StarGate-Atlantis)
 > This is stable and fast plugin for pmmp that allows server connect to WaterDog plugin StarGate. It make easier communication between server. Includes API fur custom packets, transferring players and more 
 </br> Download [here](https://poggit.pmmp.io/ci/Alemiz112/StarGate-Atlantis/)!
 

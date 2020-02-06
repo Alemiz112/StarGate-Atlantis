@@ -116,7 +116,7 @@ class StarGateConnection extends Thread {
                 }
             }
         }else{
-            if ($this->canConnect()){
+            if ($this->canConnect() && !$this->isShutdown()){
                 $this->getLogger()->info("§cTrying to reconnect to StarGate...");
                 $this->canConnect = $this->isConnected = $this->starGateSocket->connect();
             }
@@ -144,12 +144,14 @@ class StarGateConnection extends Thread {
     public function inputRead(){
         return $this->input->shift();
     }
+
     /**
      * @param string $string
      */
     public function inputWrite(string $string){
         $this->input[] = $string;
     }
+
     /**
      * @return string
      */
@@ -171,18 +173,21 @@ class StarGateConnection extends Thread {
     public function canConnect(): bool{
         return $this->canConnect;
     }
+
     /**
      * @param bool $canConnect
      */
     public function setCanConnect(bool $canConnect): void{
         $this->canConnect = $canConnect;
     }
+
     /**
      * @return bool
      */
     public function isConnected(): bool{
         return $this->isConnected;
     }
+
     /**
      * @param bool $isConnected
      */
@@ -191,10 +196,24 @@ class StarGateConnection extends Thread {
     }
 
     /**
+     * @return bool
+     */
+    public function isShutdown(): bool{
+        return $this->shutdown;
+    }
+
+    /**
      * @return resource
      */
     public function getSocket(){
         return $this->starGateSocket->getSocket();
+    }
+
+    /**
+     * @return StarGateSocket
+     */
+    public function getStarGateSocket(): StarGateSocket{
+        return $this->starGateSocket;
     }
 
 
