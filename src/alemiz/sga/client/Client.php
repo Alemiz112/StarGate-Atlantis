@@ -59,11 +59,7 @@ class Client extends Task {
         $message = $this->interface->readPacket();
         if (is_null($message)) return;
 
-        //TODO: remove
-        $this->logger->info($message);
-
         if (strpos($message, "GATE_STATUS") !== false){
-            $this->logger->info("GATE_STATUS");
             return;
         }
 
