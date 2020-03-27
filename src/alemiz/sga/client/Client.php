@@ -146,4 +146,11 @@ class Client extends Task {
     public function getLogger(): PluginLogger{
         return $this->logger;
     }
+
+    /**
+     * @return string
+     */
+    public function getClientName(): string{
+        return $this->name;
+    }
 }
