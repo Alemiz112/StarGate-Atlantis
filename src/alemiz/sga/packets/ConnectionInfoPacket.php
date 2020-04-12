@@ -19,14 +19,14 @@ class ConnectionInfoPacket extends StarGatePacket {
     /** @var int */
     public $packetType;
 
-    /** @var string */
+    /** @var string|null */
     public $reason = null;
 
     public function __construct(){
         parent::__construct("CONNECTION_INFO_PACKET", Packets::CONNECTION_INFO_PACKET);
     }
 
-    public function decode(){
+    public function decode() : void {
         $this->isEncoded = false;
 
         $data = Convertor::getPacketStringData($this->encoded);
@@ -37,7 +37,7 @@ class ConnectionInfoPacket extends StarGatePacket {
         }
     }
 
-    public function encode(){
+    public function encode() : void {
         $convertor = new Convertor($this->getID());
 
         $convertor->putInt($this->packetType);

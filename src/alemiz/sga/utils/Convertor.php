@@ -17,14 +17,14 @@ class Convertor{
     /**
      * @param int $interger
      */
-    public function putInt(int $interger){
+    public function putInt(int $interger) : void {
         $this->data[] = (string) $interger;
     }
 
     /**
      * @param string $string
      */
-    public function putString(string $string){
+    public function putString(string $string) : void {
         $this->data[] = $string;
     }
 

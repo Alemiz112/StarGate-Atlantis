@@ -40,7 +40,7 @@ class StarGateSocket{
         $this->conn->socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
 
         try {
-            if ($this->getSocket() === false || !@socket_connect($this->getSocket(), $this->address, $this->port)) {
+            if (!@socket_connect($this->getSocket(), $this->address, $this->port)) {
                 throw new Exception(socket_strerror(socket_last_error()));
             }
 

@@ -11,6 +11,8 @@ abstract class ResponseCheckTask extends Task {
     protected $uuid;
     /** @var string */
     protected $expectedResult;
+    /** @var string */
+    protected $client;
 
     /**
      * This should be instance of your plugin
@@ -30,17 +32,19 @@ abstract class ResponseCheckTask extends Task {
      * @param PluginBase $plugin
      * @param string $uuid
      * @param string $expectedResult
+     * @param string $client
      */
-    public function __construct(PluginBase $plugin, string $uuid, string $expectedResult){
+    public function __construct(PluginBase $plugin, string $uuid, string $expectedResult, string $client = "default"){
         $this->uuid = $uuid;
         $this->expectedResult = $expectedResult;
         $this->plugin = $plugin;
+        $this->client = $client;
     }
 
-    public function onRun(int $currentTick){
+    public function onRun(int $currentTick) : void {
         if ($this->timeout === 0) return;
 
-        $responses = StarGateAtlantis::getInstance()->getResponses();
+        $responses = StarGateAtlantis::getInstance()->getResponses($this->client);
 
         if (!isset($responses[$this->uuid]) || $responses[$this->uuid] === "unknown"){
             $this->timeout--;
@@ -67,13 +71,13 @@ abstract class ResponseCheckTask extends Task {
     public abstract function handleResult(string $response, string $expectedResult);
 
     /** This function will be called if result will be never fetched*/
-    public abstract function error();
+    public abstract function error() : void ;
 
     /**
      * Allows you to schedule task without calling Scheduler separately
      * @param int $delay
      */
-    public function scheduleTask(int $delay){
+    public function scheduleTask(int $delay) : void {
         $this->plugin->getScheduler()->scheduleDelayedTask($this, $delay);
     }
 }

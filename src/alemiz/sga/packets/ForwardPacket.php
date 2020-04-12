@@ -15,7 +15,7 @@ class ForwardPacket extends StarGatePacket {
         parent::__construct("FORWARD_PACKET", Packets::FORWARD_PACKET);
     }
 
-    public function decode(){
+    public function decode() : void {
         $this->isEncoded = false;
 
         $data = Convertor::getPacketStringData($this->encoded);
@@ -25,7 +25,7 @@ class ForwardPacket extends StarGatePacket {
         $this->encodedPacket = implode("!", $data);
     }
 
-    public function encode(){
+    public function encode() : void {
         $convertor = new Convertor($this->getID());
         $convertor->putString($this->client);
 

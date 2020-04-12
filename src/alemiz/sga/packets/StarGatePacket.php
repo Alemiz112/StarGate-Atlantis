@@ -6,6 +6,7 @@ namespace alemiz\sga\packets;
 * I recommend to look into some official packet to better understanding*/
 
 use alemiz\sga\StarGateAtlantis;
+use Closure;
 
 abstract class StarGatePacket{
 
@@ -38,7 +39,7 @@ abstract class StarGatePacket{
     /**
      * This is another way of handling response.
      * If is not null response will not be saved
-     * @var \Closure | null
+     * @var Closure | null
      */
     protected $responseHandler = null;
 
@@ -48,8 +49,8 @@ abstract class StarGatePacket{
      * Every packet has custom data, so you must adjust it yourself
      * Try to inspire by official packets*/
 
-    public abstract function encode();
-    public abstract function decode();
+    public abstract function encode() : void;
+    public abstract function decode() : void;
 
     /**
      * StarGatePacket constructor.
@@ -63,9 +64,9 @@ abstract class StarGatePacket{
 
     /**
      * @param string $client
-     * @return string
+     * @return string|null
      */
-    public function putPacket($client = "default") : string{
+    public function putPacket($client = "default") : ?string {
         return StarGateAtlantis::getInstance()->putPacket($this, $client);
     }
 
@@ -84,16 +85,16 @@ abstract class StarGatePacket{
     }
 
     /**
-     * @param \Closure $responseHandler
+     * @param Closure $responseHandler
      */
-    public function setResponseHandler(\Closure $responseHandler): void{
+    public function setResponseHandler(Closure $responseHandler): void{
         $this->responseHandler = $responseHandler;
     }
 
     /**
-     * @return \Closure|null
+     * @return Closure|null
      */
-    public function getResponseHandler(): ?\Closure{
+    public function getResponseHandler(): ?Closure{
         return $this->responseHandler;
     }
 }

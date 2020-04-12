@@ -7,7 +7,7 @@ use pocketmine\Player;
 
 class PlayerTransferPacket extends StarGatePacket {
 
-    /** @var Player */
+    /** @var Player|null */
     public $player;
     /** @var string */
     public $destination;
@@ -16,7 +16,7 @@ class PlayerTransferPacket extends StarGatePacket {
         parent::__construct("PLAYER_TRANSFORM_PACKET", Packets::PLAYER_TRANSFORM_PACKET);
     }
 
-    public function decode(){
+    public function decode() : void {
         $this->isEncoded = false;
 
         $data = Convertor::getPacketStringData($this->encoded);
@@ -24,9 +24,10 @@ class PlayerTransferPacket extends StarGatePacket {
         $this->destination = $data[2];
     }
 
-    public function encode(){
-        $convertor = new Convertor($this->getID());
+    public function encode() : void {
+        if (is_null($this->player)) return;
 
+        $convertor = new Convertor($this->getID());
         $convertor->putString($this->player->getName());
         $convertor->putString($this->destination);
 
@@ -35,9 +36,9 @@ class PlayerTransferPacket extends StarGatePacket {
     }
 
     /**
-     * @return Player
+     * @return Player|null
      */
-    public function getPlayer(): Player{
+    public function getPlayer(): ?Player {
         return $this->player;
     }
 

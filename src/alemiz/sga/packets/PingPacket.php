@@ -15,7 +15,7 @@ class PingPacket extends StarGatePacket {
         parent::__construct("PING_PACKET", Packets::PING_PACKET);
     }
 
-    public function decode(){
+    public function decode() : void {
         $this->isEncoded = false;
 
         $data = Convertor::getPacketStringData($this->encoded);
@@ -23,7 +23,7 @@ class PingPacket extends StarGatePacket {
         $this->client = $data[2];
     }
 
-    public function encode(){
+    public function encode() : void {
         $convertor = new Convertor($this->getID());
 
         $convertor->putString($this->pingData);

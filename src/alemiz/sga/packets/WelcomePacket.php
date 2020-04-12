@@ -22,7 +22,7 @@ class WelcomePacket extends StarGatePacket {
         parent::__construct("WELCOME_PACKET", Packets::WELCOME_PACKET);
     }
 
-    public function decode(){
+    public function decode() : void {
         /* This is very important! Server will try to decode packet if it will be not set correctly
         * And that can return unupdated packet*/
         $this->isEncoded = false;
@@ -41,7 +41,7 @@ class WelcomePacket extends StarGatePacket {
      * You must create new Conventor class then using dynamic functions you can putString|putInt|or other data
      * For more docs see GitHub documentation
      */
-    public function encode(){
+    public function encode() : void {
         $convertor = new Convertor($this->getID());
 
         $convertor->putString($this->server);

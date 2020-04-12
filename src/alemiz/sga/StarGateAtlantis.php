@@ -176,8 +176,19 @@ class StarGateAtlantis extends PluginBase{
      * @param string $client
      * @return array
      */
-    public function getResponses(string $client): array {
+    public function getResponses(string $client = "default"): array {
         return isset($this->clients[$client])? $this->clients[$client]->getInterface()->getResponses() : [];
+    }
+
+    /**
+     * @param string $uuid
+     * @param string $client
+     */
+    public function unsetResponse(string $uuid, string $client) : void {
+        if (!isset($this->clients[$client])) return;
+
+        $client = $this->clients[$client];
+        $client->getInterface()->unsetResponse($uuid);
     }
 
     /**
@@ -219,12 +230,11 @@ class StarGateAtlantis extends PluginBase{
     }
 
     /**
-     * Transferring player to other server
-     * @param $player
+     * @param Player|null $player
      * @param string $server
      * @param string $client
      */
-    public function transferPlayer($player, string $server, string $client = "default") : void {
+    public function transferPlayer(?Player $player, string $server, string $client = "default") : void {
         if (is_null($player)) return;
 
         $packet = new PlayerTransferPacket();
@@ -235,11 +245,11 @@ class StarGateAtlantis extends PluginBase{
 
     /**
      * Kick player from any server connected to StarGate network
-     * @param $player
+     * @param Player|null $player
      * @param string $reason
      * @param string $client
      */
-    public function kickPlayer($player, string $reason, string $client = "default") : void {
+    public function kickPlayer(?Player $player, string $reason, string $client = "default") : void {
         if (is_null($player)) return;
 
         $packet = new KickPacket();

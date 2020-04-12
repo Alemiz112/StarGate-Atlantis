@@ -97,7 +97,7 @@ class Client extends Task {
             }else{
                 $this->interface->setResponse($uuid, $response);
                 /* 20*30 is maximum tolerated delay*/
-                $this->sga->getScheduler()->scheduleDelayedTask(new ResponseRemoveTask($uuid), 20*30);
+                $this->sga->getScheduler()->scheduleDelayedTask(new ResponseRemoveTask($uuid, $this->configName), 20*30);
             }
             return;
         }

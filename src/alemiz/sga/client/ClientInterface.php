@@ -178,6 +178,13 @@ class ClientInterface{
 
     /**
      * @param string $uuid
+     */
+    public function unsetResponse(string $uuid) : void {
+        unset($this->responses[$uuid]);
+    }
+
+    /**
+     * @param string $uuid
      * @param Closure $responseHandler
      */
     public function setResponseHandler(string $uuid, Closure $responseHandler) : void {

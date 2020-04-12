@@ -113,7 +113,7 @@ class StarGateConnection extends Thread {
         $readyArray = [$this->getSocket()];
         if (socket_select($readyArray, $null, $null, $waitTime = 0) > 0){
             $data = @socket_read($this->getSocket(), 65536, PHP_NORMAL_READ);
-            $data = str_replace(["\n", "\r"], '', $data);
+            $data = str_replace(["\n", "\r"], '', (string) $data);
             if ($data != "" && $data != "\r" && $data != "\n"){
                 $this->inputWrite($data);
             }
