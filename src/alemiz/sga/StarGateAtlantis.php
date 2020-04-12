@@ -10,6 +10,7 @@ use alemiz\sga\packets\KickPacket;
 use alemiz\sga\packets\PingPacket;
 use alemiz\sga\packets\PlayerOnlinePacket;
 use alemiz\sga\packets\PlayerTransferPacket;
+use alemiz\sga\packets\ServerManagePacket;
 use alemiz\sga\packets\StarGatePacket;
 use alemiz\sga\packets\WelcomePacket;
 use alemiz\sga\tasks\ReconnectTask;
@@ -121,6 +122,7 @@ class StarGateAtlantis extends PluginBase{
         self::RegisterPacket(new KickPacket());
         self::RegisterPacket(new PlayerOnlinePacket());
         self::RegisterPacket(new ForwardPacket());
+        self::RegisterPacket(new ServerManagePacket());
     }
 
     /**

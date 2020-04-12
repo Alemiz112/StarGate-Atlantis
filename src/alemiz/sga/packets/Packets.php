@@ -11,4 +11,5 @@ interface Packets{
     const FORWARD_PACKET = 0x06;
     const CONNECTION_INFO_PACKET = 0x07;
 
+    const SERVER_MANAGE_PACKET = 0x10;
 }

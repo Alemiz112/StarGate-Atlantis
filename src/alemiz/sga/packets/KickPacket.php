@@ -37,14 +37,14 @@ class KickPacket extends StarGatePacket {
     /**
      * @return Player
      */
-    public function getPlayer(): Player{
+    public function getPlayer(): Player {
         return $this->player;
     }
 
     /**
      * @return string
      */
-    public function getDestination(): string{
-        return $this->destination;
+    public function getReason(): string {
+        return $this->reason;
     }
 }
