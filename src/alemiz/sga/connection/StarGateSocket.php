@@ -1,6 +1,8 @@
 <?php
 namespace alemiz\sga\connection;
 
+use Exception;
+
 class StarGateSocket{
 
     /** @var StarGateConnection */
@@ -34,20 +36,20 @@ class StarGateSocket{
     /**
      * @return bool
      */
-    public function connect(){
+    public function connect() : bool {
         $this->conn->socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
 
         try {
             if ($this->getSocket() === false || !@socket_connect($this->getSocket(), $this->address, $this->port)) {
-                throw new \Exception(socket_strerror(socket_last_error()));
+                throw new Exception(socket_strerror(socket_last_error()));
             }
 
             socket_set_nonblock($this->getSocket());
             socket_set_option($this->getSocket(), SOL_TCP, TCP_NODELAY, 1);
 
             $this->authenticate();
-        }catch (\Exception $e){
-            $this->conn->getLogger()->info("§cERROR: Unable to connect to StarGate server!");
+        }catch (Exception $e){
+            $this->conn->getLogger()->info("§cERROR: Unable to connect to StarGate server §6@".$this->conn->getConfigName()." §a!");
             $this->conn->getLogger()->info("§c".$e->getMessage());
             return false;
         }
@@ -55,9 +57,9 @@ class StarGateSocket{
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
-    public function authenticate(){
+    public function authenticate() : void {
         $handShakeData = [];
         $handShakeData[0] = "CHEVRON";
         $handShakeData[1] = $this->name;
@@ -67,25 +69,28 @@ class StarGateSocket{
 
         $data = socket_write($this->getSocket(), $message."\r\n", strlen($message."\r\n"));
         if ($data === false) {
-            $this->conn->getLogger()->info("§cWARNING: Unable to authenticate StarGate client! Please try to restart server");
-            throw new \Exception(socket_strerror(socket_last_error()));
+            $this->conn->getLogger()->info("§cWARNING: Unable to authenticate StarGate client §6@".$this->conn->getConfigName()." §a! Please try to restart server");
+            throw new Exception(socket_strerror(socket_last_error()));
         }
 
-        $this->conn->getLogger()->info("§aDone! Successfully connected to StarGate server! Authenticating ...");
+        $this->conn->getLogger()->info("§aSuccessfully connected to StarGate server §6@".$this->conn->getConfigName()." §a! Authenticating ...");
     }
 
+    /**
+     * @return resource
+     */
     public function getSocket(){
         return $this->conn->socket;
     }
 
-    public function close(){
+    public function close() : void {
         socket_close($this->conn->socket);
     }
 
     /**
      * @return string
      */
-    public function getAddress(): string{
+    public function getAddress(): string {
         return $this->address;
     }
 }

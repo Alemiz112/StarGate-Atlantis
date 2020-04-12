@@ -8,6 +8,7 @@ use alemiz\sga\packets\StarGatePacket;
 use alemiz\sga\packets\WelcomePacket;
 use alemiz\sga\StarGateAtlantis;
 use alemiz\sga\utils\Convertor;
+use Closure;
 use pocketmine\scheduler\Task;
 
 class ClientInterface{
@@ -22,7 +23,7 @@ class ClientInterface{
 
     /** @var array  */
     protected $responses = [];
-    /** @var \Closure[]  */
+    /** @var Closure[]  */
     protected $responseHandlers = [];
 
     /**
@@ -37,13 +38,13 @@ class ClientInterface{
         $this->client = $client;
 
         $server = $client->getServer();
-        $this->connection = new StarGateConnection($server->getLogger(), $server->getLoader(), $address, $port, $name, $password);
+        $this->connection = new StarGateConnection($server->getLogger(), $server->getLoader(), $address, $port, $name, $client->getConfigName(), $password);
     }
 
     /**
      * @return bool
      */
-    public function process(){
+    public function process() : bool {
         if (!$this->connection->canConnect()) return false;
 
         if (!$this->read){
@@ -86,7 +87,7 @@ class ClientInterface{
      * @param StarGatePacket $packet
      * @return string
      */
-    public function gatePacket(StarGatePacket $packet){
+    public function gatePacket(StarGatePacket $packet) : string {
         if (!$packet->isEncoded){
             $packet->encode();
         }
@@ -103,14 +104,21 @@ class ClientInterface{
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function readPacket(){
+    public function readPacket() : ?string {
         return $this->connection->inputRead();
     }
 
+    /**
+     * @param string $out
+     */
+    public function writeString(string $out) : void {
+        $this->connection->outWrite($out);
+    }
 
-    public function welcome(){
+
+    public function welcome() : void {
         /* Sending WelcomePacket*/
         $packet = new WelcomePacket();
 
@@ -122,7 +130,7 @@ class ClientInterface{
         $this->gatePacket($packet);
     }
 
-    public function reconnect(){
+    public function reconnect() : void {
         $this->connection->setConnected(false);
         $this->connection->setCanConnect(true);
         $this->read = false;
@@ -131,7 +139,7 @@ class ClientInterface{
     /**
      * @param string|null $reason
      */
-    public function close(string $reason = null){
+    public function close(string $reason = null) : void {
         if (!$this->connection->isConnected()) return;
 
         $packet = new ConnectionInfoPacket();
@@ -140,7 +148,7 @@ class ClientInterface{
         $this->gatePacket($packet);
     }
 
-    public function forceClose(){
+    public function forceClose() : void {
         $this->connection->shutdownThread();
     }
 
@@ -148,15 +156,15 @@ class ClientInterface{
     /**
      * @return array
      */
-    public function getResponses(): array{
+    public function getResponses(): array {
         return $this->responses;
     }
 
     /**
      * @param string $uuid
-     * @return \Closure|null
+     * @return Closure|null
      */
-    public function getResponseHandler(string $uuid){
+    public function getResponseHandler(string $uuid) : ?Closure {
         return (isset($this->responseHandlers[$uuid])? $this->responseHandlers[$uuid] : null);
     }
 
@@ -164,15 +172,15 @@ class ClientInterface{
      * @param string $uuid
      * @param string $response
      */
-    public function setResponse(string $uuid, string $response){
+    public function setResponse(string $uuid, string $response) : void {
         $this->responses[$uuid] = $response;
     }
 
     /**
      * @param string $uuid
-     * @param \Closure $responseHandler
+     * @param Closure $responseHandler
      */
-    public function setResponseHandler(string $uuid, \Closure $responseHandler){
+    public function setResponseHandler(string $uuid, Closure $responseHandler) : void {
         $this->responseHandlers[$uuid] = $responseHandler;
     }
 
@@ -180,21 +188,21 @@ class ClientInterface{
     /**
      * @return bool
      */
-    public function canConnect(){
+    public function canConnect() : bool {
         return $this->connection->canConnect();
     }
 
     /**
      * @return bool
      */
-    public function isConnected(){
+    public function isConnected() : bool {
         return $this->connection->isConnected();
     }
 
     /**
      * @return bool
      */
-    public function isShutdown(){
+    public function isShutdown() : bool {
         return $this->connection->isShutdown();
     }
 }

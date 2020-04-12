@@ -20,14 +20,21 @@ use pocketmine\utils\Config;
 
 class StarGateAtlantis extends PluginBase{
 
-    /** @var Config */
+    /**
+     * @var Config
+     */
     public $cfg;
-    /** @var StarGateAtlantis */
+    /**
+     * @var StarGateAtlantis
+     */
     private static $instance;
-    /** @var Client */
-    private $client;
-
-    /** @var StarGatePacket[]  */
+    /**
+     * @var Client[]
+     */
+    protected $clients = [];
+    /**
+     * @var StarGatePacket[]
+     */
     protected static $packets = [];
 
     public function onEnable(){
@@ -36,45 +43,77 @@ class StarGateAtlantis extends PluginBase{
 		$this->saveDefaultConfig();
 		$this->cfg = $this->getConfig();
 
-        /* Starting Client for StarGate*/
-        $name = $this->cfg->get("Client");
-        $address = $this->cfg->get("Address");
-        $port = $this->cfg->get("Port");
-        $password = $this->cfg->get("Password");
-        $tickInterval = (int) $this->cfg->get("TickInterval");
 
         $this->initPackets();
+        foreach ($this->cfg->get("connections") as $clientName => $ignore){
+            $this->start($clientName);
+        }
 
-        $this->client = new Client($this, $address, $port, $name, $password, $tickInterval);
         $this->getScheduler()->scheduleDelayedRepeatingTask(new ReconnectTask($this), 30*20, 20*60*5);
     }
 
     public function onDisable(){
-        $this->client->shutdown(ConnectionInfoPacket::CLIENT_SHUTDOWN);
+        foreach ($this->clients as $client){
+            $client->shutdown(ConnectionInfoPacket::CLIENT_SHUTDOWN);
+        }
     }
 
     /**
      * @return StarGateAtlantis
      */
-    public static function getInstance(){
+    public static function getInstance() : StarGateAtlantis {
         return self::$instance;
     }
 
     /**
-     * @return Client
+     * @param string $name
      */
-    public function getClient(): Client{
-        return $this->client;
+    private function start(string $name) : void {
+        if (!isset($this->cfg->get("connections")[$name])) return;
+        $data = $this->cfg->get("connections")[$name];
+
+        $tickInterval = (int) $this->cfg->get("TickInterval");
+        $clientName = $data["name"];
+        $address = $data["address"];
+        $port = (int) $data["port"];
+        $password = $data["password"];
+
+        $this->clients[$name] = new Client($this, $address, $port, $clientName, $password, $name, $tickInterval);
     }
 
     /**
-     * @return array
+     * @param string $name
      */
-    public function getResponses(): array{
-        return $this->client->getInterface()->getResponses();
+    public function restart(string $name) : void {
+        $this->getLogger()->info("§eReloading StarGate Client ".$name);
+        $client = null;
+
+        if (!isset($this->clients[$name]) || (($client = $this->clients[$name]))->getInterface()->isShutdown()){
+            $this->start($name);
+            return;
+        }
+
+        if ($client->getInterface()->canConnect() && $client->getInterface()->isConnected()){
+            return; //client is connected
+        }
+
+        $client->getInterface()->reconnect();
     }
 
-    private function initPackets(){
+    /**
+     * @param string $name
+     * @return bool
+     */
+    public function removeClient(string $name) : bool {
+        if (!isset($this->clients[$name])){
+            return false;
+        }
+
+        unset($this->clients[$name]);
+        return true;
+    }
+
+    private function initPackets() : void {
         self::RegisterPacket(new WelcomePacket());
         self::RegisterPacket(new PingPacket());
         self::RegisterPacket(new ConnectionInfoPacket());
@@ -90,7 +129,7 @@ class StarGateAtlantis extends PluginBase{
      * @param string $packetString
      * @return StarGatePacket|null
      */
-    public function processPacket(string $packetString){
+    public function processPacket(string $packetString) : ?StarGatePacket {
         $data = Convertor::getPacketStringData($packetString);
         $packetId = (int) $data[0];
 
@@ -114,7 +153,7 @@ class StarGateAtlantis extends PluginBase{
     /**
      * @param StarGatePacket $packet
      */
-    public function handlePacket(StarGatePacket $packet){
+    public function handlePacket(StarGatePacket $packet) : void {
         $type = $packet->getID();
 
         switch ($type){
@@ -131,25 +170,49 @@ class StarGateAtlantis extends PluginBase{
         }
     }
 
+    /**
+     * @param string $client
+     * @return array
+     */
+    public function getResponses(string $client): array {
+        return isset($this->clients[$client])? $this->clients[$client]->getInterface()->getResponses() : [];
+    }
+
+    /**
+     * @return Client[]
+     */
+    public function getClients(): array {
+        return $this->clients;
+    }
+
+    /**
+     * @param string $client
+     * @return string|null
+     */
+    public function getClientName(string $client = "default"): ?string{
+        return isset($this->clients[$client])? $this->clients[$client]->getName() : null;
+    }
+
 
     /* Beginning of API section*/
     /**
      * This allows you to send packet. Returns packets UUID.
      * @param StarGatePacket $packet
-     * @return string
+     * @param string $client
+     * @return string|null
      */
-    public function putPacket(StarGatePacket $packet) : string {
-        return $this->client->getInterface()->gatePacket($packet);
+    public function putPacket(StarGatePacket $packet, string $client = "default") : ?string {
+        return isset($this->clients[$client])? $this->clients[$client]->getInterface()->gatePacket($packet) : null;
     }
 
     /**
      * @return StarGatePacket[]
      */
-    public static function getPackets(){
+    public static function getPackets() : array {
         return self::$packets;
     }
 
-    public static function RegisterPacket(StarGatePacket $packet){
+    public static function RegisterPacket(StarGatePacket $packet) : void {
         self::$packets[$packet->getID()] = $packet;
     }
 
@@ -157,31 +220,31 @@ class StarGateAtlantis extends PluginBase{
      * Transferring player to other server
      * @param $player
      * @param string $server
+     * @param string $client
      */
-    public function transferPlayer($player, string $server){
+    public function transferPlayer($player, string $server, string $client = "default") : void {
         if (is_null($player)) return;
 
         $packet = new PlayerTransferPacket();
         $packet->player = $player;
         $packet->destination = $server;
-        $this->putPacket($packet);
+        $this->putPacket($packet, $client);
     }
 
     /**
      * Kick player from any server connected to StarGate network
      * @param $player
      * @param string $reason
+     * @param string $client
      */
-    public function kickPlayer($player, string $reason){
+    public function kickPlayer($player, string $reason, string $client = "default") : void {
         if (is_null($player)) return;
 
         $packet = new KickPacket();
         $packet->player = $player;
         $packet->reason = $reason;
-        $this->putPacket($packet);
+        $this->putPacket($packet, $client);
     }
-
-    //TODO: Edit desc
 
     /**
      * We can check if player is online somewhere in network
@@ -189,9 +252,10 @@ class StarGateAtlantis extends PluginBase{
      * Example can be found in /tests/OnlineExample.java
      * @param Player|string $player
      * @param \Closure|null $responseHandler
+     * @param string $client
      * @return string|null
      */
-    public function isOnline($player, \Closure $responseHandler = null){
+    public function isOnline($player, \Closure $responseHandler = null, string $client = "default") : ?string {
         if (is_null($player) || $player == "") return null;
 
         $packet = new PlayerOnlinePacket();
@@ -204,23 +268,24 @@ class StarGateAtlantis extends PluginBase{
             $packet->setResponseHandler($responseHandler);
         }
 
-        return $this->putPacket($packet);
+        return $this->putPacket($packet, $client);
     }
 
     /**
      * Using ForwardPacket you can forward packet to other client
-     * @param string $client
+     * @param string $destClient
+     * @param string $localClient
      * @param StarGatePacket $packet
      */
-    public function forwardPacket(string $client, StarGatePacket $packet){
+    public function forwardPacket(string $destClient, string $localClient, StarGatePacket $packet) : void {
         $forwardPacket = new ForwardPacket();
-        $forwardPacket->client = $client;
+        $forwardPacket->client = $destClient;
 
         if (!$packet->isEncoded){
             $packet->encode();
         }
 
         $forwardPacket->encodedPacket = $packet->encoded;
-        $this->putPacket($forwardPacket);
+        $this->putPacket($forwardPacket, $localClient);
     }
 }

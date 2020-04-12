@@ -18,11 +18,12 @@ class ReconnectTask extends Task {
     }
 
     public function onRun(int $currentTick){
-        $client = $this->plugin->getClient();
-        if ($client->getInterface()->isShutdown() ||
-            ($client->getInterface()->canConnect() && $client->getInterface()->isConnected())) return;
+        $clients = $this->plugin->getClients();
 
-        $client->getLogger()->info("§eReloading StarGate Client");
-        $client->getInterface()->reconnect();
+        foreach ($clients as $name => $client){
+            if ($client->getInterface()->isShutdown() || ($client->getInterface()->canConnect() && $client->getInterface()->isConnected())) continue;
+
+            $this->plugin->restart($name);
+        }
     }
 }

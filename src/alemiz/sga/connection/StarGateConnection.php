@@ -19,6 +19,8 @@ class StarGateConnection extends Thread {
     /** @var string */
     private $name;
     /** @var string */
+    private $configName;
+    /** @var string */
     private $password;
 
     /** @var \Threaded */
@@ -40,13 +42,15 @@ class StarGateConnection extends Thread {
      * @param string $address
      * @param int $port
      * @param string $name
+     * @param string $configName
      * @param string $password
      */
-    public function __construct(\ThreadedLogger $logger, \ClassLoader $loader, string $address, int $port, string $name, string $password){
+    public function __construct(\ThreadedLogger $logger, \ClassLoader $loader, string $address, int $port, string $name, string $configName, string $password){
         $this->logger = $logger;
         $this->address = $address;
         $this->port = $port;
         $this->name = $name;
+        $this->configName = $configName;
         $this->password = $password;
 
         $this->setClassLoader($loader);
@@ -57,7 +61,7 @@ class StarGateConnection extends Thread {
         $this->start();
     }
 
-    public function run(){
+    public function run() : void {
         $this->registerClassLoader();
         gc_enable();
         error_reporting(-1);
@@ -75,7 +79,7 @@ class StarGateConnection extends Thread {
         $this->operate();
     }
 
-    private function operate(){
+    private function operate() : void {
         while (!$this->shutdown){
             $start = microtime(true);
             $this->tick();
@@ -88,81 +92,79 @@ class StarGateConnection extends Thread {
         $this->shutdown();
     }
 
-    private function tick(){
-        $this->update();
+    private function tick() : void {
+        if (!$this->isConnected){
+            if ($this->canConnect() && !$this->isShutdown()){
+                $this->getLogger()->info("§cTrying to reconnect to StarGate...");
+                $this->canConnect = $this->isConnected = $this->starGateSocket->connect();
+            }
+            return;
+        }
+
+        $error = socket_last_error();
+        socket_clear_error($this->getSocket());
+
+        if ($error === 10057 || $error === 10054 || $error === 10053){
+            $this->getLogger()->info("§cWARNING: Connection aborted! StarGate connection was unexpectedly closed!");
+            $this->isConnected = false;
+            return;
+        }
+
+        $readyArray = [$this->getSocket()];
+        if (socket_select($readyArray, $null, $null, $waitTime = 0) > 0){
+            $data = @socket_read($this->getSocket(), 65536, PHP_NORMAL_READ);
+            $data = str_replace(["\n", "\r"], '', $data);
+            if ($data != "" && $data != "\r" && $data != "\n"){
+                $this->inputWrite($data);
+            }
+        }
+
         while (($packet = $this->outRead()) !== null && strlen($packet) !== 0){
             socket_write($this->getSocket(), $packet."\r\n", strlen($packet."\r\n"));
         }
     }
 
-    private function update(){
-        if ($this->isConnected){
-            $error = socket_last_error();
-            socket_clear_error($this->getSocket());
 
-            if ($error === 10057 || $error === 10054){
-                $this->getLogger()->info("§cWARNING: Connection aborted! StarGate connection was unexpectedly closed!");
-                $this->isConnected = false;
-                return;
-            }
-
-            $readyArray = [$this->getSocket()];
-            if (socket_select($readyArray, $null, $null, $waitTime = 0) > 0){
-
-                $data = @socket_read($this->getSocket(), 65536, PHP_NORMAL_READ);
-                $data = str_replace(["\n", "\r"], '', $data);
-                if ($data != "" && $data != "\r" && $data != "\n"){
-                    $this->inputWrite($data);
-                }
-            }
-        }else{
-            if ($this->canConnect() && !$this->isShutdown()){
-                $this->getLogger()->info("§cTrying to reconnect to StarGate...");
-                $this->canConnect = $this->isConnected = $this->starGateSocket->connect();
-            }
-        }
-    }
-
-    public function quit(){
+    public function quit() : void {
         $this->shutdownThread();
         parent::quit();
     }
 
-    public function shutdown(){
+    public function shutdown() : void {
         $this->isConnected = $this->canConnect = false;
         $this->starGateSocket->close();
     }
 
-    public function shutdownThread(){
+    public function shutdownThread() : void {
         $this->shutdown = true;
     }
 
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function inputRead(){
+    public function inputRead() : ?string {
         return $this->input->shift();
     }
 
     /**
      * @param string $string
      */
-    public function inputWrite(string $string){
+    public function inputWrite(string $string) : void {
         $this->input[] = $string;
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function outRead(){
+    public function outRead() : ?string {
         return $this->output->shift();
     }
 
     /**
      * @param string $string
      */
-    public function outWrite(string $string){
+    public function outWrite(string $string) : void {
         $this->output[] = $string;
     }
 
@@ -170,35 +172,35 @@ class StarGateConnection extends Thread {
     /**
      * @return bool
      */
-    public function canConnect(): bool{
+    public function canConnect(): bool {
         return $this->canConnect;
     }
 
     /**
      * @param bool $canConnect
      */
-    public function setCanConnect(bool $canConnect): void{
+    public function setCanConnect(bool $canConnect): void {
         $this->canConnect = $canConnect;
     }
 
     /**
      * @return bool
      */
-    public function isConnected(): bool{
+    public function isConnected(): bool {
         return $this->isConnected;
     }
 
     /**
      * @param bool $isConnected
      */
-    public function setConnected(bool $isConnected): void{
+    public function setConnected(bool $isConnected): void {
         $this->isConnected = $isConnected;
     }
 
     /**
      * @return bool
      */
-    public function isShutdown(): bool{
+    public function isShutdown(): bool {
         return $this->shutdown;
     }
 
@@ -212,22 +214,28 @@ class StarGateConnection extends Thread {
     /**
      * @return StarGateSocket
      */
-    public function getStarGateSocket(): StarGateSocket{
+    public function getStarGateSocket(): StarGateSocket {
         return $this->starGateSocket;
     }
 
+    /**
+     * @return string
+     */
+    public function getConfigName() : string {
+        return $this->configName;
+    }
 
     /**
      * @return \ThreadedLogger
      */
-    public function getLogger(): \ThreadedLogger{
+    public function getLogger(): \ThreadedLogger {
         return $this->logger;
     }
 
-    public function getThreadName(): string{
+    public function getThreadName(): string {
         return "StarGate-Atlantis";
     }
 
-    public function setGarbage(){
+    public function setGarbage() : void {
     }
 }

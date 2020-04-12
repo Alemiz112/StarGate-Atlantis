@@ -62,10 +62,11 @@ abstract class StarGatePacket{
     }
 
     /**
+     * @param string $client
      * @return string
      */
-    public function putPacket() : string{
-        return StarGateAtlantis::getInstance()->putPacket($this);
+    public function putPacket($client = "default") : string{
+        return StarGateAtlantis::getInstance()->putPacket($this, $client);
     }
 
     /**

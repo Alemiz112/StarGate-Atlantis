@@ -19,6 +19,8 @@ class Client extends Task {
     private $logger;
 
     /** @var string */
+    protected $configName;
+    /** @var string */
     protected $address;
     /** @var int */
     protected $port;
@@ -30,6 +32,9 @@ class Client extends Task {
     /** @var ClientInterface */
     private $interface;
 
+    /** @var int */
+    private $nextPing = 0;
+
     /**
      * Client constructor.
      * @param StarGateAtlantis $plugin
@@ -37,9 +42,10 @@ class Client extends Task {
      * @param int $port
      * @param string $name
      * @param string $password
+     * @param string $configName
      * @param int $tickInterval
      */
-    public function __construct(StarGateAtlantis $plugin, string $address, int $port, string $name, string $password, int $tickInterval){
+    public function __construct(StarGateAtlantis $plugin, string $address, int $port, string $name, string $password, string $configName, int $tickInterval){
         $this->sga = $plugin;
         $this->server = $plugin->getServer();
         $this->logger = $plugin->getLogger();
@@ -48,13 +54,21 @@ class Client extends Task {
         $this->port = $port;
         $this->name = $name;
         $this->password = $password;
+        $this->configName = $configName;
 
         $this->interface = new ClientInterface($this, $address, $port, $name, $password);
+
+        $this->nextPing = $plugin->getServer()->getTick() + 20;
         $plugin->getScheduler()->scheduleDelayedRepeatingTask($this, 20, $tickInterval);
     }
 
     public function onRun(int $currentTick){
         if (!$this->interface->process()) return;
+
+        if ($this->nextPing < $currentTick){
+            $this->interface->writeString("GATE_STATUS");
+            $this->nextPing += 20 * 10;
+        }
 
         $message = $this->interface->readPacket();
         if (is_null($message)) return;
@@ -110,47 +124,55 @@ class Client extends Task {
      * @param string $reason
      * @param bool $kill
      */
-    public function shutdown(string $reason = "unknown", bool $kill = false){
+    public function shutdown(string $reason = "unknown", bool $kill = false) : void {
         if ($kill){
             $this->interface->forceClose();
             return;
         }
         $this->interface->close($reason);
+        $this->sga->removeClient($this->configName);
     }
 
 
     /**
      * @return ClientInterface
      */
-    public function getInterface(): ClientInterface{
+    public function getInterface(): ClientInterface {
         return $this->interface;
     }
 
     /**
      * @return Server
      */
-    public function getServer(): Server{
+    public function getServer(): Server {
         return $this->server;
     }
 
     /**
      * @return StarGateAtlantis
      */
-    public function getSga(): StarGateAtlantis{
+    public function getSga(): StarGateAtlantis {
         return $this->sga;
     }
 
     /**
      * @return PluginLogger
      */
-    public function getLogger(): PluginLogger{
+    public function getLogger(): PluginLogger {
         return $this->logger;
     }
 
     /**
      * @return string
      */
-    public function getClientName(): string{
+    public function getClientName(): string {
         return $this->name;
+    }
+
+    /**
+     * @return string
+     */
+    public function getConfigName(): string {
+        return $this->configName;
     }
 }
