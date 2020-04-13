@@ -6,8 +6,6 @@ parameters:
 
     paths:
         - src/alemiz/sga/
-    autoload_files:
-        - phar://dependencies/PocketMine-MP.phar/vendor/autoload.php
     autoload_directories:
         - src/alemiz/sga/
     excludes_analyse:
