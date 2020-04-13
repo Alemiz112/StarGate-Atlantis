@@ -13,12 +13,16 @@ More features will be added very soon
 ## 🔧API
 You can access StarGate-Atlantis by ``StarGateAtlantis::getInstance()``
 #### Avalibe Functions
-- ``transferPlayer(Player player, string server)`` This we use to transfer Player between servers
 - ``RegisterPacket(StarGatePacket packet)`` Really simple method for registring Packet
-- ``putPacket(StarGatePacket packet)`` This allows you to send packet. Packet must be registered first
-- ``kickPlayer(Player player, string reason)``  Kick player from any server connected to StarGate network
-- ``isOnline(Player player)`` Check if player is online. Sends back response 'true!server' or 'false'. Examples [here](https://github.com/Alemiz112/StarGate-Universe/tree/master/src/tests#playeronline-response).
-- ``forwardPacket(string client, StarGatePacket packet)`` Using ForwardPacket you can forward packet to other client/server
+- ``putPacket(StarGatePacket packet, string $client)`` This allows you to send packet. Packet must be registered first
+- ``transferPlayer(Player player, string server, string $client)`` This we use to transfer Player between servers
+- ``kickPlayer(Player player, string reason, string $client)``  Kick player from any server connected to StarGate network
+- ``isOnline(Player player, string $client)`` Check if player is online. Sends back response 'true!server' or 'false'. Examples [here](https://github.com/Alemiz112/StarGate-Universe/tree/master/src/tests#playeronline-response).
+- ``forwardPacket(string $destClient, string $localClient, StarGatePacket $packet)`` Using ForwardPacket you can forward packet to other client/server
+- ``addServer(string $address, string $port, string $name, string $client)`` Add server to list and allows players to transfer
+- ``removeServer(string $name, string  $client)`` Remove server from server list
+
+Client variable in API is used to specify destination proxy (if more instances are used). It is not important to define it, if one one proxy is used.
 ##### Example:
 ```php
 $player = PLUGIN::getInstance()->getPlayer("alemiz003");
@@ -49,6 +53,9 @@ For more info please consider looking [here](https://github.com/Alemiz112/StarGa
 
 #### ⚙️Creating Own Packets
 For better understanding please read [StarGatePacket](https://github.com/Alemiz112/StarGate-Atlantis/blob/master/src/alemiz/sga/packets/StarGatePacket.php) and [WelcomePacket](https://github.com/Alemiz112/StarGate-Atlantis/blob/master/src/alemiz/sga/packets/WelcomePacket.php)
+#### Docker Implementation
+If you have servers inside Docker container this is for you. StarGate allows you to create/remove/start/stop any container. Using `ServerManagePacket` you can set container exposed ports and env. variables too.
+ Working example can be found [here](https://github.com/Alemiz112/StarGate-Universe/tree/master/src/tests#docker-implementation-example).
 #### Convertor
 Convertor is used for ``encoding`` and ``decoding`` packets. We can use it for static and nonstatic usage</br>
 Functions:</br>

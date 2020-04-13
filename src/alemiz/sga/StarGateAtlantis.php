@@ -13,7 +13,6 @@ use alemiz\sga\packets\PlayerTransferPacket;
 use alemiz\sga\packets\ServerManagePacket;
 use alemiz\sga\packets\StarGatePacket;
 use alemiz\sga\packets\WelcomePacket;
-use alemiz\sga\tasks\ReconnectTask;
 use alemiz\sga\utils\Convertor;
 use pocketmine\Player;
 use pocketmine\plugin\PluginBase;
@@ -49,8 +48,6 @@ class StarGateAtlantis extends PluginBase{
         foreach ($this->cfg->get("connections") as $clientName => $ignore){
             $this->start($clientName);
         }
-
-        $this->getScheduler()->scheduleDelayedRepeatingTask(new ReconnectTask($this), 30*20, 20*60*5);
     }
 
     public function onDisable(){
@@ -299,5 +296,39 @@ class StarGateAtlantis extends PluginBase{
 
         $forwardPacket->encodedPacket = $packet->encoded;
         $this->putPacket($forwardPacket, $localClient);
+    }
+
+    /**
+     * Proxy will send response with status: "STATUS_FAILED" or "STATUS_SUCCESS,server_name"
+     * Dont forget. Response can be handled using ResponseCheckTask
+     * Returned variable is UUID or packets used to handle response NOT response
+     * @param string $address
+     * @param string $port
+     * @param string $name
+     * @param string $client
+     * @return string|null
+     */
+    public function addServer(string $address, string $port, string $name, string $client = "default") : ?string {
+        $packet = new ServerManagePacket();
+        $packet->packetType = ServerManagePacket::SERVER_ADD;
+        $packet->serverAddress = $address;
+        $packet->serverPort = $port;
+        $packet->serverName = $name;
+
+        return $this->putPacket($packet, $client);
+    }
+
+    /**
+     * Response: "STATUS_SUCCESS" or "STATUS_NOT_FOUND"
+     * @param string $name
+     * @param string $client
+     * @return string|null
+     */
+    public function removeServer(string $name, string  $client = "default") : ?string {
+        $packet = new ServerManagePacket();
+        $packet->packetType = ServerManagePacket::SERVER_REMOVE;
+        $packet->serverName = $name;
+
+        return $this->putPacket($packet, $client);
     }
 }

@@ -122,7 +122,7 @@ class ClientInterface{
         /* Sending WelcomePacket*/
         $packet = new WelcomePacket();
 
-        $packet->server = StarGateAtlantis::getInstance()->cfg->get("Client");
+        $packet->server = $this->client->getClientName();
         $packet->players = count(StarGateAtlantis::getInstance()->getServer()->getOnlinePlayers());
         $packet->tps = (int) StarGateAtlantis::getInstance()->getServer()->getTicksPerSecondAverage();
         $packet->usage = (int) StarGateAtlantis::getInstance()->getServer()->getTickUsageAverage();
@@ -152,20 +152,34 @@ class ClientInterface{
         $this->connection->shutdownThread();
     }
 
-
-    /**
-     * @return array
-     */
-    public function getResponses(): array {
-        return $this->responses;
-    }
-
     /**
      * @param string $uuid
      * @return Closure|null
      */
     public function getResponseHandler(string $uuid) : ?Closure {
         return (isset($this->responseHandlers[$uuid])? $this->responseHandlers[$uuid] : null);
+    }
+
+    /**
+     * @param string $uuid
+     * @param Closure $responseHandler
+     */
+    public function setResponseHandler(string $uuid, Closure $responseHandler) : void {
+        $this->responseHandlers[$uuid] = $responseHandler;
+    }
+
+    /**
+     * @param string $uuid
+     */
+    public function unsetResponseHandler(string $uuid) : void {
+        unset($this->responseHandlers[$uuid]);
+    }
+
+    /**
+     * @return array
+     */
+    public function getResponses(): array {
+        return $this->responses;
     }
 
     /**
@@ -181,14 +195,6 @@ class ClientInterface{
      */
     public function unsetResponse(string $uuid) : void {
         unset($this->responses[$uuid]);
-    }
-
-    /**
-     * @param string $uuid
-     * @param Closure $responseHandler
-     */
-    public function setResponseHandler(string $uuid, Closure $responseHandler) : void {
-        $this->responseHandlers[$uuid] = $responseHandler;
     }
 
 

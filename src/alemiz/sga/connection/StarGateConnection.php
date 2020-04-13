@@ -105,7 +105,7 @@ class StarGateConnection extends Thread {
         socket_clear_error($this->getSocket());
 
         if ($error === 10057 || $error === 10054 || $error === 10053){
-            $this->getLogger()->info("§cWARNING: Connection aborted! StarGate connection was unexpectedly closed!");
+            $this->getLogger()->info("§cWARNING: Connection with §6@".$this->configName." §caborted! StarGate connection was unexpectedly closed!");
             $this->isConnected = false;
             return;
         }

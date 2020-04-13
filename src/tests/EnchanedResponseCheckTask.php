@@ -26,7 +26,7 @@ class EnchanedResponseCheckTask extends ResponseCheckTask{
         }
     }
 
-    public function error(){
+    public function error() : void {
         $this->plugin->getLogger()->info("§cERROR!");
     }
 }

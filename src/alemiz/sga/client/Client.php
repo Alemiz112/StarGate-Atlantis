@@ -93,6 +93,8 @@ class Client extends Task {
             $response = $data[2];
 
             if (($handler = $this->interface->getResponseHandler($uuid)) !== null){
+                $this->interface->unsetResponse($uuid);
+
                 $handler($response);
             }else{
                 $this->interface->setResponse($uuid, $response);

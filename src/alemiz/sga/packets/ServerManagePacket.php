@@ -59,10 +59,7 @@ class ServerManagePacket extends StarGatePacket {
         parent::__construct("SERVER_MANAGE_PACKET", Packets::SERVER_MANAGE_PACKET);
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function encode() : void {
+    public function decode() : void {
         $this->isEncoded = false;
 
         $data = Convertor::getPacketStringData($this->encoded);
@@ -95,7 +92,10 @@ class ServerManagePacket extends StarGatePacket {
         }
     }
 
-    public function decode() : void {
+    /**
+     * @inheritDoc
+     */
+    public function encode() : void {
         $convertor = new Convertor($this->getID());
         $convertor->putInt($this->packetType);
 

@@ -49,7 +49,7 @@ class StarGateSocket{
 
             $this->authenticate();
         }catch (Exception $e){
-            $this->conn->getLogger()->info("§cERROR: Unable to connect to StarGate server §6@".$this->conn->getConfigName()." §a!");
+            $this->conn->getLogger()->info("§cERROR: Unable to connect to StarGate server §6@".$this->conn->getConfigName()."§c!");
             $this->conn->getLogger()->info("§c".$e->getMessage());
             return false;
         }

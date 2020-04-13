@@ -30,7 +30,7 @@ class OnlineExample extends ResponseCheckTask{
         $this->executor->sendMessage("§6Player §e".$this->finding." §6is ONLINE at server§e ".$data[1]);
     }
 
-    public function error(){
+    public function error() : void {
         $this->plugin->getLogger()->warning("§cResponse for uuid §5".$this->uuid."§cwas not received!");
     }
 }
