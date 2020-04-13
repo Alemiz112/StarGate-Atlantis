@@ -5,8 +5,11 @@ parameters:
     ignoreErrors: []
 
     paths:
-        - src/alemiz/sga/
+        - /source/src/
+    autoload_files:
+            - phar:///pocketmine/PocketMine-MP.phar/vendor/autoload.php
     autoload_directories:
         - src/alemiz/sga/
     excludes_analyse:
-        - vendor
+        - /source/vendor
+        - /source/src/tests
