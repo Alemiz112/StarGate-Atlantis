@@ -62,7 +62,7 @@ class Client extends Task {
         $plugin->getScheduler()->scheduleDelayedRepeatingTask($this, 20, $tickInterval);
     }
 
-    public function onRun(int $currentTick){
+    public function onRun(int $currentTick) : void {
         if (!$this->interface->process()) return;
 
         if ($this->nextPing < $currentTick){
@@ -93,14 +93,13 @@ class Client extends Task {
             $response = $data[2];
 
             if (($handler = $this->interface->getResponseHandler($uuid)) !== null){
-                $this->interface->unsetResponse($uuid);
-
                 $handler($response);
-            }else{
-                $this->interface->setResponse($uuid, $response);
-                /* 20*30 is maximum tolerated delay*/
-                $this->sga->getScheduler()->scheduleDelayedTask(new ResponseRemoveTask($uuid, $this->configName), 20*30);
+                return;
             }
+
+            $this->interface->setResponse($uuid, $response);
+            /* 20*30 is maximum tolerated delay*/
+            $this->sga->getScheduler()->scheduleDelayedTask(new ResponseRemoveTask($uuid, $this->configName), 20*30);
             return;
         }
 
@@ -110,12 +109,12 @@ class Client extends Task {
 
             switch ($packet->getPacketType()){
                 case ConnectionInfoPacket::CONNECTION_RECONNECT:
-                    $this->logger->info("§cWARNING: Reconnecting to StarGate server! Reason: §c".(($reason === null) ? "unknown" : $reason));
+                    $this->logger->info("§cWARNING: Reconnecting to StarGate server! Reason: §c".($reason ?? "unknown"));
 
                     $this->interface->reconnect();
                     break;
                 case ConnectionInfoPacket::CONNECTION_CLOSED:
-                    $this->logger->info("§cWARNING: Connection to StarGate server was closed! Reason: §c".(($reason === null) ? "unknown" : $reason));
+                    $this->logger->info("§cWARNING: Connection to StarGate server was closed! Reason: §c".($reason ?? "unknown"));
                     $this->interface->forceClose();
                     break;
             }

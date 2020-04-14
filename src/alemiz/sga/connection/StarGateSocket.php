@@ -41,7 +41,7 @@ class StarGateSocket{
 
         try {
             if (!@socket_connect($this->getSocket(), $this->address, $this->port)) {
-                throw new Exception(socket_strerror(socket_last_error()));
+                throw new \RuntimeException(socket_strerror(socket_last_error()));
             }
 
             socket_set_nonblock($this->getSocket());
@@ -70,7 +70,7 @@ class StarGateSocket{
         $data = socket_write($this->getSocket(), $message."\r\n", strlen($message."\r\n"));
         if ($data === false) {
             $this->conn->getLogger()->info("§cWARNING: Unable to authenticate StarGate client §6@".$this->conn->getConfigName()." §a! Please try to restart server");
-            throw new Exception(socket_strerror(socket_last_error()));
+            throw new \RuntimeException(socket_strerror(socket_last_error()));
         }
 
         $this->conn->getLogger()->info("§aSuccessfully connected to StarGate server §6@".$this->conn->getConfigName()." §a! Authenticating ...");

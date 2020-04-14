@@ -37,9 +37,11 @@ class StarGateAtlantis extends PluginBase{
      */
     protected static $packets = [];
 
-    public function onEnable(){
+    public function onEnable() : void {
         self::$instance = $this;
-		@mkdir($this->getDataFolder());
+        if (!mkdir($concurrentDirectory = $this->getDataFolder()) && !is_dir($concurrentDirectory)) {
+            throw new \RuntimeException(sprintf('Directory "%s" was not created', $concurrentDirectory));
+        }
 		$this->saveDefaultConfig();
 		$this->cfg = $this->getConfig();
 
@@ -50,7 +52,7 @@ class StarGateAtlantis extends PluginBase{
         }
     }
 
-    public function onDisable(){
+    public function onDisable() : void {
         foreach ($this->clients as $client){
             $client->shutdown(ConnectionInfoPacket::CLIENT_SHUTDOWN);
         }
@@ -132,10 +134,10 @@ class StarGateAtlantis extends PluginBase{
         $data = Convertor::getPacketStringData($packetString);
         $packetId = (int) $data[0];
 
-        if (!isset(StarGateAtlantis::getPackets()[$packetId])) return null;
+        if (!isset(self::getPackets()[$packetId])) return null;
 
         /* Here we decode Packet. Create from String Data*/
-        $packet = clone StarGateAtlantis::getPackets()[$packetId];
+        $packet = clone self::getPackets()[$packetId];
         $uuid = end($data);
 
         $packet->uuid = $uuid;
@@ -227,30 +229,30 @@ class StarGateAtlantis extends PluginBase{
     }
 
     /**
-     * @param Player|null $player
+     * @param Player|string|null $player
      * @param string $server
      * @param string $client
      */
-    public function transferPlayer(?Player $player, string $server, string $client = "default") : void {
-        if (is_null($player)) return;
+    public function transferPlayer($player, string $server, string $client = "default") : void {
+        if (empty($player)) return;
 
         $packet = new PlayerTransferPacket();
-        $packet->player = $player;
+        $packet->player = ($player instanceof Player)? $player->getName() : $player;
         $packet->destination = $server;
         $this->putPacket($packet, $client);
     }
 
     /**
      * Kick player from any server connected to StarGate network
-     * @param Player|null $player
+     * @param Player|string|null $player
      * @param string $reason
      * @param string $client
      */
-    public function kickPlayer(?Player $player, string $reason, string $client = "default") : void {
-        if (is_null($player)) return;
+    public function kickPlayer($player, string $reason, string $client = "default") : void {
+        if (empty($player)) return;
 
         $packet = new KickPacket();
-        $packet->player = $player;
+        $packet->player = ($player instanceof Player)? $player->getName() : $player;
         $packet->reason = $reason;
         $this->putPacket($packet, $client);
     }
@@ -259,13 +261,13 @@ class StarGateAtlantis extends PluginBase{
      * We can check if player is online somewhere in network
      * After sending packet we must handle response by UUID
      * Example can be found in /tests/OnlineExample.java
-     * @param Player|string $player
+     * @param Player|string|null $player
      * @param \Closure|null $responseHandler
      * @param string $client
      * @return string|null
      */
     public function isOnline($player, \Closure $responseHandler = null, string $client = "default") : ?string {
-        if (is_null($player) || $player == "") return null;
+        if (empty($player)) return null;
 
         $packet = new PlayerOnlinePacket();
 

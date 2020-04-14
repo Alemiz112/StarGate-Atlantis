@@ -1,11 +1,14 @@
 <?php
 namespace alemiz\sga\connection;
 
+use ClassLoader;
 use pocketmine\Thread;
+use Threaded;
+use ThreadedLogger;
 
 class StarGateConnection extends Thread {
 
-    /** @var \ThreadedLogger */
+    /** @var ThreadedLogger */
     private $logger;
     /** @var StarGateSocket */
     private $starGateSocket;
@@ -23,9 +26,9 @@ class StarGateConnection extends Thread {
     /** @var string */
     private $password;
 
-    /** @var \Threaded */
+    /** @var Threaded */
     private $input;
-    /** @var \Threaded */
+    /** @var Threaded */
     private $output;
 
     /** @var bool */
@@ -37,15 +40,15 @@ class StarGateConnection extends Thread {
 
     /**
      * StarGateConnection constructor.
-     * @param \ThreadedLogger $logger
-     * @param \ClassLoader $loader
+     * @param ThreadedLogger $logger
+     * @param ClassLoader $loader
      * @param string $address
      * @param int $port
      * @param string $name
      * @param string $configName
      * @param string $password
      */
-    public function __construct(\ThreadedLogger $logger, \ClassLoader $loader, string $address, int $port, string $name, string $configName, string $password){
+    public function __construct(ThreadedLogger $logger, ClassLoader $loader, string $address, int $port, string $name, string $configName, string $password){
         $this->logger = $logger;
         $this->address = $address;
         $this->port = $port;
@@ -55,8 +58,8 @@ class StarGateConnection extends Thread {
 
         $this->setClassLoader($loader);
 
-        $this->input = new \Threaded();
-        $this->output = new \Threaded();
+        $this->input = new Threaded();
+        $this->output = new Threaded();
 
         $this->start();
     }
@@ -114,12 +117,12 @@ class StarGateConnection extends Thread {
         if (socket_select($readyArray, $null, $null, $waitTime = 0) > 0){
             $data = @socket_read($this->getSocket(), 65536, PHP_NORMAL_READ);
             $data = str_replace(["\n", "\r"], '', (string) $data);
-            if ($data != "" && $data != "\r" && $data != "\n"){
+            if ($data !== "" && $data !== "\r" && $data !== "\n"){
                 $this->inputWrite($data);
             }
         }
 
-        while (($packet = $this->outRead()) !== null && strlen($packet) !== 0){
+        while (($packet = $this->outRead()) !== null && $packet != ""){
             socket_write($this->getSocket(), $packet."\r\n", strlen($packet."\r\n"));
         }
     }
@@ -226,9 +229,9 @@ class StarGateConnection extends Thread {
     }
 
     /**
-     * @return \ThreadedLogger
+     * @return ThreadedLogger
      */
-    public function getLogger(): \ThreadedLogger {
+    public function getLogger(): ThreadedLogger {
         return $this->logger;
     }
 

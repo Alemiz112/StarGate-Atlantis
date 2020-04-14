@@ -1,13 +1,11 @@
 <?php
 namespace alemiz\sga\packets;
 
-use alemiz\sga\StarGateAtlantis;
 use alemiz\sga\utils\Convertor;
-use pocketmine\Player;
 
 class KickPacket extends StarGatePacket {
 
-    /** @var Player|null */
+    /** @var string */
     public $player;
     /** @var string */
     public $reason;
@@ -20,15 +18,13 @@ class KickPacket extends StarGatePacket {
         $this->isEncoded = false;
 
         $data = Convertor::getPacketStringData($this->encoded);
-        $this->player = StarGateAtlantis::getInstance()->getServer()->getPlayer($data[1]);
+        $this->player = $data[1];
         $this->reason = $data[2];
     }
 
     public function encode() : void {
-        if (is_null($this->player)) return;
-
         $convertor = new Convertor($this->getID());
-        $convertor->putString($this->player->getName());
+        $convertor->putString($this->player);
         $convertor->putString($this->reason);
 
         $this->encoded = $convertor->getPacketString();
@@ -36,9 +32,9 @@ class KickPacket extends StarGatePacket {
     }
 
     /**
-     * @return Player|null
+     * @return string
      */
-    public function getPlayer(): ?Player{
+    public function getPlayer(): string {
         return $this->player;
     }
 

@@ -1,13 +1,11 @@
 <?php
 namespace alemiz\sga\packets;
 
-use alemiz\sga\StarGateAtlantis;
 use alemiz\sga\utils\Convertor;
-use pocketmine\Player;
 
 class PlayerTransferPacket extends StarGatePacket {
 
-    /** @var Player|null */
+    /** @var string */
     public $player;
     /** @var string */
     public $destination;
@@ -20,7 +18,7 @@ class PlayerTransferPacket extends StarGatePacket {
         $this->isEncoded = false;
 
         $data = Convertor::getPacketStringData($this->encoded);
-        $this->player = StarGateAtlantis::getInstance()->getServer()->getPlayer($data[1]);
+        $this->player = $data[1];
         $this->destination = $data[2];
     }
 
@@ -28,7 +26,7 @@ class PlayerTransferPacket extends StarGatePacket {
         if (is_null($this->player)) return;
 
         $convertor = new Convertor($this->getID());
-        $convertor->putString($this->player->getName());
+        $convertor->putString($this->player);
         $convertor->putString($this->destination);
 
         $this->encoded = $convertor->getPacketString();
@@ -36,16 +34,16 @@ class PlayerTransferPacket extends StarGatePacket {
     }
 
     /**
-     * @return Player|null
+     * @return string
      */
-    public function getPlayer(): ?Player {
+    public function getPlayer(): string {
         return $this->player;
     }
 
     /**
      * @return string
      */
-    public function getDestination(): string{
+    public function getDestination(): string {
         return $this->destination;
     }
 }

@@ -80,14 +80,14 @@ class ServerManagePacket extends StarGatePacket {
                 $this->serverName = $data[4];
                 $this->containerImage = $data[5];
                 $this->exposedPorts = explode(",", $data[6]);
-                if (count($data) > 8) $this->envVariables = explode(",", $data[7]);
-                if (count($data) > 9) $this->dockerHost = $data[8];
+                if (isset($data[7])) $this->envVariables = explode(",", $data[7]);
+                if (isset($data[8])) $this->dockerHost = $data[8];
                 break;
             case self::DOCKER_REMOVE:
             case self::DOCKER_START:
             case self::DOCKER_STOP:
                 $this->containerId = $data[2];
-                if (count($data) > 4) $this->dockerHost = $data[3];
+                if (isset($data[3])) $this->dockerHost = $data[3];
                 break;
         }
     }
@@ -114,14 +114,14 @@ class ServerManagePacket extends StarGatePacket {
                 $convertor->putString($this->serverName);
                 $convertor->putString($this->containerImage);
                 $convertor->putString(implode(",", $this->exposedPorts));
-                if ($this->envVariables != null) $convertor->putString(implode(",", $this->envVariables));
-                if ($this->dockerHost != null) $convertor->putString($this->dockerHost);
+                if (!empty($this->envVariables)) $convertor->putString(implode(",", $this->envVariables));
+                if (!empty($this->dockerHost)) $convertor->putString($this->dockerHost);
                 break;
             case self::DOCKER_REMOVE:
             case self::DOCKER_START:
             case self::DOCKER_STOP:
                 $convertor->putString($this->containerId);
-                if ($this->dockerHost != null) $convertor->putString($this->dockerHost);
+                if (!empty($this->dockerHost)) $convertor->putString($this->dockerHost);
                 break;
         }
 

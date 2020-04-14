@@ -57,7 +57,7 @@ class ClientInterface{
                 if ($irisPacket instanceof ConnectionInfoPacket){
                     $type = $irisPacket->getPacketType();
 
-                    if ($type == ConnectionInfoPacket::CONNECTION_ABORTED){
+                    if ($type === ConnectionInfoPacket::CONNECTION_ABORTED){
                         $reason = $irisPacket->getReason();
 
                         $this->client->getLogger()->warning("§cERROR: StarGate client was not authenticated! Reason: §4".(($reason == null) ? "unknown" : $reason));
@@ -65,7 +65,7 @@ class ClientInterface{
                         return false;
                     }
 
-                    if ($type == ConnectionInfoPacket::CONNECTION_CONNECTED){
+                    if ($type === ConnectionInfoPacket::CONNECTION_CONNECTED){
                         $this->connection->setConnected(true);
                         $this->read = true;
                         $this->welcome();
@@ -93,7 +93,7 @@ class ClientInterface{
         }
 
         $packetString = $packet->encoded;
-        $uuid = uniqid();
+        $uuid = uniqid('', true);
 
         if (!is_null($packet->getResponseHandler())){
             $this->setResponseHandler($uuid, $packet->getResponseHandler());
@@ -157,7 +157,7 @@ class ClientInterface{
      * @return Closure|null
      */
     public function getResponseHandler(string $uuid) : ?Closure {
-        return (isset($this->responseHandlers[$uuid])? $this->responseHandlers[$uuid] : null);
+        return ($this->responseHandlers[$uuid] ?? null);
     }
 
     /**
