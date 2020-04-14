@@ -39,9 +39,7 @@ class StarGateAtlantis extends PluginBase{
 
     public function onEnable() : void {
         self::$instance = $this;
-        if (!mkdir($concurrentDirectory = $this->getDataFolder()) && !is_dir($concurrentDirectory)) {
-            throw new \RuntimeException(sprintf('Directory "%s" was not created', $concurrentDirectory));
-        }
+        @mkdir($this->getDataFolder());
 		$this->saveDefaultConfig();
 		$this->cfg = $this->getConfig();
 
