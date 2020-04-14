@@ -285,10 +285,10 @@ class StarGateAtlantis extends PluginBase{
     /**
      * Using ForwardPacket you can forward packet to other client
      * @param string $destClient
-     * @param string $localClient
+     * @param string $proxyServer
      * @param StarGatePacket $packet
      */
-    public function forwardPacket(string $destClient, string $localClient, StarGatePacket $packet) : void {
+    public function forwardPacket(string $destClient, string $proxyServer, StarGatePacket $packet) : void {
         $forwardPacket = new ForwardPacket();
         $forwardPacket->client = $destClient;
 
@@ -297,7 +297,7 @@ class StarGateAtlantis extends PluginBase{
         }
 
         $forwardPacket->encodedPacket = $packet->encoded;
-        $this->putPacket($forwardPacket, $localClient);
+        $this->putPacket($forwardPacket, $proxyServer);
     }
 
     /**

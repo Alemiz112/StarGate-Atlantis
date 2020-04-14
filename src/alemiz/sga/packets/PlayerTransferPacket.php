@@ -11,7 +11,7 @@ class PlayerTransferPacket extends StarGatePacket {
     public $destination;
 
     public function __construct(){
-        parent::__construct("PLAYER_TRANSFORM_PACKET", Packets::PLAYER_TRANSFORM_PACKET);
+        parent::__construct("PLAYER_TRANSFER_PACKET", Packets::PLAYER_TRANSFER_PACKET);
     }
 
     public function decode() : void {
