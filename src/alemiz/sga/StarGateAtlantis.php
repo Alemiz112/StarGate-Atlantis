@@ -200,7 +200,7 @@ class StarGateAtlantis extends PluginBase{
      * @return string|null
      */
     public function getClientName(string $client = "default"): ?string{
-        return isset($this->clients[$client])? $this->clients[$client]->getName() : null;
+        return isset($this->clients[$client])? $this->clients[$client]->getClientName() : null;
     }
 
 

@@ -108,6 +108,7 @@ class StarGateConnection extends Thread {
         socket_clear_error($this->getSocket());
 
         if ($error === 10057 || $error === 10054 || $error === 10053){
+            error:
             $this->getLogger()->info("§cWARNING: Connection with §6@".$this->configName." §caborted! StarGate connection was unexpectedly closed!");
             $this->isConnected = false;
             return;
@@ -123,7 +124,9 @@ class StarGateConnection extends Thread {
         }
 
         while (($packet = $this->outRead()) !== null && $packet != ""){
-            socket_write($this->getSocket(), $packet."\r\n", strlen($packet."\r\n"));
+            if (socket_write($this->getSocket(), $packet."\r\n", strlen($packet."\r\n")) === false){
+                goto error;
+            }
         }
     }
 
