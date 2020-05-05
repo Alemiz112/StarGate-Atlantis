@@ -72,7 +72,7 @@ class ClientInterface{
                         $this->welcome();
 
                         try {
-                            $event = new StarGateClientConnectEvent($this->client->getClientName());
+                            $event = new StarGateClientConnectEvent($this->client->getClientName(), $this->client->getConfigName());
                             $event->call();
                         }catch (\RuntimeException $e){
                             $this->client->getLogger()->critical("§cError: Unable to call connection event!");

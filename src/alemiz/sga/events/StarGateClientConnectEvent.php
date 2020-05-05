@@ -12,11 +12,18 @@ class StarGateClientConnectEvent extends Event {
     private $client;
 
     /**
+     * @var string
+     */
+    private $configName;
+
+    /**
      * StarGateClientConnectEvent constructor.
      * @param string $client
+     * @param string $configName
      */
-    public function __construct(string $client){
+    public function __construct(string $client, string $configName){
         $this->client = $client;
+        $this->configName = $configName;
     }
 
     /**
@@ -24,5 +31,12 @@ class StarGateClientConnectEvent extends Event {
      */
     public function getClient(): string {
         return $this->client;
+    }
+
+    /**
+     * @return string
+     */
+    public function getConfigName(): string {
+        return $this->configName;
     }
 }
