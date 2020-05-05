@@ -96,8 +96,8 @@ class StarGateConnection extends Thread {
     }
 
     private function tick() : void {
-        if (!$this->isConnected){
-            if ($this->canConnect() && !$this->isShutdown()){
+        if (!$this->isConnected && $this->canConnect()){
+            if (!$this->isShutdown()){
                 $this->getLogger()->info("§cTrying to reconnect to StarGate...");
                 $this->canConnect = $this->isConnected = $this->starGateSocket->connect();
             }

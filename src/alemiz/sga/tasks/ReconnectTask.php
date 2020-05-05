@@ -21,8 +21,7 @@ class ReconnectTask extends Task {
         $clients = $this->plugin->getClients();
 
         foreach ($clients as $name => $client){
-            if ($client->getInterface()->isShutdown() || ($client->getInterface()->canConnect() && $client->getInterface()->isConnected())) continue;
-
+            if ($client->getInterface()->isShutdown() || $client->getInterface()->isConnected()) continue;
             $this->plugin->restart($name);
         }
     }

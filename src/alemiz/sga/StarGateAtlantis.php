@@ -13,6 +13,7 @@ use alemiz\sga\packets\PlayerTransferPacket;
 use alemiz\sga\packets\ServerManagePacket;
 use alemiz\sga\packets\StarGatePacket;
 use alemiz\sga\packets\WelcomePacket;
+use alemiz\sga\tasks\ReconnectTask;
 use alemiz\sga\utils\Convertor;
 use pocketmine\Player;
 use pocketmine\plugin\PluginBase;
@@ -48,6 +49,8 @@ class StarGateAtlantis extends PluginBase{
         foreach ($this->cfg->get("connections") as $clientName => $ignore){
             $this->start($clientName);
         }
+
+        $this->getScheduler()->scheduleDelayedRepeatingTask(new ReconnectTask($this), 20*30, 20*60*3);
     }
 
     public function onDisable() : void {
@@ -91,7 +94,7 @@ class StarGateAtlantis extends PluginBase{
             return;
         }
 
-        if ($client->getInterface()->canConnect() && $client->getInterface()->isConnected()){
+        if ($client->getInterface()->isConnected()){
             return; //client is connected
         }
 

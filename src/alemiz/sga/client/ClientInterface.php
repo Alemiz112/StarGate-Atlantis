@@ -46,7 +46,7 @@ class ClientInterface{
      * @return bool
      */
     public function process() : bool {
-        if (!$this->connection->canConnect()) return false;
+        if (!$this->connection->isConnected()) return false;
 
         if (!$this->read){
             try {
@@ -205,7 +205,6 @@ class ClientInterface{
     public function unsetResponse(string $uuid) : void {
         unset($this->responses[$uuid]);
     }
-
 
     /**
      * @return bool
