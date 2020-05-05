@@ -3,6 +3,7 @@ namespace alemiz\sga\client;
 
 use alemiz\sga\connection\StarGateConnection;
 use alemiz\sga\events\CustomPacketEvent;
+use alemiz\sga\events\StarGateClientConnectEvent;
 use alemiz\sga\packets\ConnectionInfoPacket;
 use alemiz\sga\packets\StarGatePacket;
 use alemiz\sga\packets\WelcomePacket;
@@ -69,6 +70,14 @@ class ClientInterface{
                         $this->connection->setConnected(true);
                         $this->read = true;
                         $this->welcome();
+
+                        try {
+                            $event = new StarGateClientConnectEvent($this->client->getClientName());
+                            $event->call();
+                        }catch (\RuntimeException $e){
+                            $this->client->getLogger()->critical("§cError: Unable to call connection event!");
+                            $this->client->getLogger()->critical("§c".$e->getMessage());
+                        }
                     }
                 }
             }catch (\Exception $e){
