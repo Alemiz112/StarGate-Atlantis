@@ -15,6 +15,7 @@ use alemiz\sga\packets\StarGatePacket;
 use alemiz\sga\packets\WelcomePacket;
 use alemiz\sga\tasks\ReconnectTask;
 use alemiz\sga\utils\Convertor;
+use Closure;
 use pocketmine\Player;
 use pocketmine\plugin\PluginBase;
 use pocketmine\utils\Config;
@@ -37,6 +38,10 @@ class StarGateAtlantis extends PluginBase{
      * @var StarGatePacket[]
      */
     protected static $packets = [];
+    /**
+     * @var Closure[]
+     */
+    private $shutdownHandlers = [];
 
     public function onEnable() : void {
         self::$instance = $this;
@@ -54,6 +59,10 @@ class StarGateAtlantis extends PluginBase{
     }
 
     public function onDisable() : void {
+        foreach ($this->shutdownHandlers as $handler){
+            $handler();
+        }
+
         foreach ($this->clients as $client){
             $client->shutdown(ConnectionInfoPacket::CLIENT_SHUTDOWN);
         }
@@ -112,6 +121,14 @@ class StarGateAtlantis extends PluginBase{
 
         unset($this->clients[$name]);
         return true;
+    }
+
+    /**
+     * Register simple Runnable task which will be run before connection closes
+     * @param Closure $handler
+     */
+    public function registerShutDownHandler(Closure $handler) : void {
+        $this->shutdownHandlers[] = $handler;
     }
 
     private function initPackets() : void {
@@ -263,11 +280,11 @@ class StarGateAtlantis extends PluginBase{
      * After sending packet we must handle response by UUID
      * Example can be found in /tests/OnlineExample.java
      * @param Player|string|null $player
-     * @param \Closure|null $responseHandler
+     * @param Closure|null $responseHandler
      * @param string $client
      * @return string|null
      */
-    public function isOnline($player, \Closure $responseHandler = null, string $client = "default") : ?string {
+    public function isOnline($player, Closure $responseHandler = null, string $client = "default") : ?string {
         if (empty($player)) return null;
 
         $packet = new PlayerOnlinePacket();
