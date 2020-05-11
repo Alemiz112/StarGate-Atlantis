@@ -124,7 +124,7 @@ class StarGateConnection extends Thread {
         }
 
         while (($packet = $this->outRead()) !== null && $packet != ""){
-            if (!socket_write($this->getSocket(), $packet."\r\n", strlen($packet."\r\n")) === false){
+            if (socket_write($this->getSocket(), $packet."\r\n", strlen($packet."\r\n")) === false){
                 goto error;
             }
         }
