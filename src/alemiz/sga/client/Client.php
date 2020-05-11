@@ -78,10 +78,7 @@ class Client extends Task {
         }
 
         if (strpos($message, "GATE_PING") !== false){
-            $data = explode(":", $message);
-
             $packet = new PingPacket();
-            $packet->pingData = $data[1];
             $packet->client = $this->name;
             $this->interface->gatePacket($packet);
             return;

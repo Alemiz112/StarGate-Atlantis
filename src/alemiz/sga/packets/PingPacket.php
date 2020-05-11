@@ -5,8 +5,6 @@ use alemiz\sga\utils\Convertor;
 
 class PingPacket extends StarGatePacket {
 
-    /** @var string */
-    public $pingData;
 
     /** @var string */
     public $client;
@@ -19,14 +17,11 @@ class PingPacket extends StarGatePacket {
         $this->isEncoded = false;
 
         $data = Convertor::getPacketStringData($this->encoded);
-        $this->pingData = $data[1];
         $this->client = $data[2];
     }
 
     public function encode() : void {
         $convertor = new Convertor($this->getID());
-
-        $convertor->putString($this->pingData);
         $convertor->putString($this->client);
 
         $this->encoded = $convertor->getPacketString();
