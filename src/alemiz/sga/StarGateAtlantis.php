@@ -233,8 +233,8 @@ class StarGateAtlantis extends PluginBase{
     public function unsetResponse(string $uuid, string $clientConfigName) : void {
         if (!isset($this->clients[$clientConfigName])) return;
 
-        $clientConfigName = $this->clients[$clientConfigName];
-        $clientConfigName->getInterface()->unsetResponse($uuid);
+        $client = $this->clients[$clientConfigName];
+        $client->getInterface()->unsetResponse($uuid);
     }
 
     /**
