@@ -145,6 +145,14 @@ class StarGateAtlantis extends PluginBase{
     }
 
     /**
+     * @param string $configName
+     * @return Client|null
+     */
+    public function getClient(string $configName) : ?Client {
+        return $this->clients[$configName] ?? null;
+    }
+
+    /**
      * Register simple Runnable task which will be run before connection closes
      * @param Closure $handler
      */
