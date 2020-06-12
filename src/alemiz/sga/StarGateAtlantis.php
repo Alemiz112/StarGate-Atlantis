@@ -111,6 +111,27 @@ class StarGateAtlantis extends PluginBase{
     }
 
     /**
+     * This will add a connection client that can be used to communicate with StarGate on the target proxy.
+     * Clients added this way will not be saved into the config file for StarGate-Atlantis if they are not
+     * already there.
+     *
+     * @param string $address           Hostname or IP Address of the target proxy
+     * @param int    $port              Port number that Stargate is using on the target proxy.
+     * @param string $clientName        The name the client will use to register with StarGate on the target proxy.
+     * @param string $password          The password required to register with StarGate on the target proxy.
+     * @param string $configName        The internal use name of the client used to retrieve and store the client.
+     * @return bool                     Returns true if the client was successfully added.
+     */
+    public function addClient(string $address, int $port, string $clientName, string $password, string $configName) : bool {
+        if (isset($this->clients[$configName])){
+            return false;
+        }
+        $tickInterval = (int) $this->cfg->get("TickInterval");
+        $this->clients[$configName] = new Client($this, $address, $port, $clientName, $password, $configName, $tickInterval);
+        return true;
+    }
+
+    /**
      * @param string $name
      * @return bool
      */
@@ -121,6 +142,14 @@ class StarGateAtlantis extends PluginBase{
 
         unset($this->clients[$name]);
         return true;
+    }
+
+    /**
+     * @param string $configName
+     * @return Client|null
+     */
+    public function getClient(string $configName) : ?Client {
+        return $this->clients[$configName] ?? null;
     }
 
     /**
