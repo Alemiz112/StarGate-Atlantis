@@ -257,7 +257,7 @@ class StarGateAtlantis extends PluginBase{
     /**
      * This allows you to send packet. Returns packets UUID.
      * @param StarGatePacket $packet
-     * @param string         $clientConfigName
+     * @param string $clientConfigName
      * @return string|null
      */
     public function putPacket(StarGatePacket $packet, string $clientConfigName = "default") : ?string {
