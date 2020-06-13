@@ -76,11 +76,11 @@ class StarGateAtlantis extends PluginBase{
     }
 
     /**
-     * @param string $name
+     * @param string $configName
      */
-    private function start(string $name) : void {
-        if (!isset($this->cfg->get("connections")[$name])) return;
-        $data = $this->cfg->get("connections")[$name];
+    private function start(string $configName) : void {
+        if (!isset($this->cfg->get("connections")[$configName])) return;
+        $data = $this->cfg->get("connections")[$configName];
 
         $tickInterval = (int) $this->cfg->get("TickInterval");
         $clientName = $data["name"];
@@ -88,18 +88,18 @@ class StarGateAtlantis extends PluginBase{
         $port = (int) $data["port"];
         $password = $data["password"];
 
-        $this->clients[$name] = new Client($this, $address, $port, $clientName, $password, $name, $tickInterval);
+        $this->clients[$configName] = new Client($this, $address, $port, $clientName, $password, $configName, $tickInterval);
     }
 
     /**
-     * @param string $name
+     * @param string $configName
      */
-    public function restart(string $name) : void {
-        $this->getLogger()->info("§eReloading StarGate Client ".$name);
+    public function restart(string $configName) : void {
+        $this->getLogger()->info("§eReloading StarGate Client ".$configName);
         $client = null;
 
-        if (!isset($this->clients[$name]) || (($client = $this->clients[$name]))->getInterface()->isShutdown()){
-            $this->start($name);
+        if (!isset($this->clients[$configName]) || (($client = $this->clients[$configName]))->getInterface()->isShutdown()){
+            $this->start($configName);
             return;
         }
 
@@ -132,15 +132,15 @@ class StarGateAtlantis extends PluginBase{
     }
 
     /**
-     * @param string $name
+     * @param string $configName
      * @return bool
      */
-    public function removeClient(string $name) : bool {
-        if (!isset($this->clients[$name])){
+    public function removeClient(string $configName) : bool {
+        if (!isset($this->clients[$configName])){
             return false;
         }
 
-        unset($this->clients[$name]);
+        unset($this->clients[$configName]);
         return true;
     }
 
@@ -219,21 +219,21 @@ class StarGateAtlantis extends PluginBase{
     }
 
     /**
-     * @param string $client
+     * @param string $clientConfigName
      * @return array
      */
-    public function getResponses(string $client = "default"): array {
-        return isset($this->clients[$client])? $this->clients[$client]->getInterface()->getResponses() : [];
+    public function getResponses(string $clientConfigName = "default"): array {
+        return isset($this->clients[$clientConfigName])? $this->clients[$clientConfigName]->getInterface()->getResponses() : [];
     }
 
     /**
      * @param string $uuid
-     * @param string $client
+     * @param string $clientConfigName
      */
-    public function unsetResponse(string $uuid, string $client) : void {
-        if (!isset($this->clients[$client])) return;
+    public function unsetResponse(string $uuid, string $clientConfigName) : void {
+        if (!isset($this->clients[$clientConfigName])) return;
 
-        $client = $this->clients[$client];
+        $client = $this->clients[$clientConfigName];
         $client->getInterface()->unsetResponse($uuid);
     }
 
@@ -245,11 +245,11 @@ class StarGateAtlantis extends PluginBase{
     }
 
     /**
-     * @param string $client
+     * @param string $clientConfigName
      * @return string|null
      */
-    public function getClientName(string $client = "default"): ?string{
-        return isset($this->clients[$client])? $this->clients[$client]->getClientName() : null;
+    public function getClientName(string $clientConfigName = "default"): ?string{
+        return isset($this->clients[$clientConfigName])? $this->clients[$clientConfigName]->getClientName() : null;
     }
 
 
@@ -257,11 +257,11 @@ class StarGateAtlantis extends PluginBase{
     /**
      * This allows you to send packet. Returns packets UUID.
      * @param StarGatePacket $packet
-     * @param string $client
+     * @param string $clientConfigName
      * @return string|null
      */
-    public function putPacket(StarGatePacket $packet, string $client = "default") : ?string {
-        return isset($this->clients[$client])? $this->clients[$client]->getInterface()->gatePacket($packet) : null;
+    public function putPacket(StarGatePacket $packet, string $clientConfigName = "default") : ?string {
+        return isset($this->clients[$clientConfigName])? $this->clients[$clientConfigName]->getInterface()->gatePacket($packet) : null;
     }
 
     /**
