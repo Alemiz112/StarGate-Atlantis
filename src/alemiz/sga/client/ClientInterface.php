@@ -2,15 +2,12 @@
 namespace alemiz\sga\client;
 
 use alemiz\sga\connection\StarGateConnection;
-use alemiz\sga\events\CustomPacketEvent;
 use alemiz\sga\events\StarGateClientConnectEvent;
 use alemiz\sga\packets\ConnectionInfoPacket;
 use alemiz\sga\packets\StarGatePacket;
 use alemiz\sga\packets\WelcomePacket;
 use alemiz\sga\StarGateAtlantis;
-use alemiz\sga\utils\Convertor;
 use Closure;
-use pocketmine\scheduler\Task;
 
 class ClientInterface{
 
@@ -133,6 +130,7 @@ class ClientInterface{
 
         $packet->server = $this->client->getClientName();
         $packet->players = count(StarGateAtlantis::getInstance()->getServer()->getOnlinePlayers());
+        $packet->maxPlayers = StarGateAtlantis::getInstance()->getServer()->getMaxPlayers();
         $packet->tps = (int) StarGateAtlantis::getInstance()->getServer()->getTicksPerSecondAverage();
         $packet->usage = (int) StarGateAtlantis::getInstance()->getServer()->getTickUsageAverage();
 

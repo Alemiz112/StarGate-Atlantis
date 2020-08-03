@@ -7,6 +7,7 @@ use alemiz\sga\utils\Convertor;
 class WelcomePacket extends StarGatePacket {
 
     /** @var string */
+
     public $server;
 
     /** @var int */
@@ -14,6 +15,9 @@ class WelcomePacket extends StarGatePacket {
 
     /** @var int */
     public $players;
+
+    /** @var int */
+    public $maxPlayers;
 
     /** @var int */
     public $usage;
@@ -24,15 +28,16 @@ class WelcomePacket extends StarGatePacket {
 
     public function decode() : void {
         /* This is very important! Server will try to decode packet if it will be not set correctly
-        * And that can return unupdated packet*/
+        * And that can return un-updated packet*/
         $this->isEncoded = false;
 
-        /* data[0] => ID*/
+        /* data[0] => ID */
         $data = Convertor::getPacketStringData($this->encoded);
         $this->server = $data[1];
         $this->tps = (int) $data[2];
         $this->usage = (int) $data[3];
         $this->players = (int) $data[4];
+        $this->maxPlayers = (int) $data[5];
     }
 
     /**
@@ -48,6 +53,7 @@ class WelcomePacket extends StarGatePacket {
         $convertor->putInt($this->tps);
         $convertor->putInt($this->usage);
         $convertor->putInt($this->players);
+        $convertor->putInt($this->maxPlayers);
 
         $this->encoded = $convertor->getPacketString();
         $this->isEncoded = true;
