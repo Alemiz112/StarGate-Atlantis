@@ -4,6 +4,7 @@
     },
   "require": {
     "ext-sockets": "*",
-    "ext-pthreads": "*"
+    "ext-pthreads": "*",
+    "ext-http": "*"
   }
 }

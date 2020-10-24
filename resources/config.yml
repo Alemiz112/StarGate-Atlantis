@@ -1,14 +1,14 @@
-#StarGate Atlantis
-##Project by Alemiz
-#Website: https://github.com/Alemiz112
+# StarGate Atlantis
+# Project by Alemiz
+# Website: https://github.com/Alemiz112
 
-#Supports more connections
+# Supports more connections
 connections:
-  default:
+  lobby1:
     address: 192.168.0.50
     port: 47007
     password: 123456789
-    name: Lobby
 
-#Interval in ticks to receive data from connection
-TickInterval: 2
+# Interval in ticks to receive data from connection
+# Lower interval, faster packet decoding and encoding
+tickInterval: 2
