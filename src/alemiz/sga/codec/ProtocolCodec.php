@@ -1,4 +1,18 @@
 <?php
+/*
+ * Copyright 2020 Alemiz
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
 
 namespace alemiz\sga\codec;
 
@@ -8,8 +22,12 @@ use alemiz\sga\protocol\PingPacket;
 use alemiz\sga\protocol\PongPacket;
 use alemiz\sga\protocol\ReconnectPacket;
 use alemiz\sga\protocol\ServerHandshakePacket;
+use alemiz\sga\protocol\ServerInfoRequestPacket;
+use alemiz\sga\protocol\ServerInfoResponsePacket;
 use alemiz\sga\protocol\StarGatePacket;
 use pocketmine\utils\Binary;
+use function strlen;
+use function substr;
 
 class ProtocolCodec {
 
@@ -28,6 +46,9 @@ class ProtocolCodec {
         $this->registerPacket(StarGatePackets::PING_PACKET, new PingPacket());
         $this->registerPacket(StarGatePackets::PONG_PACKET, new PongPacket());
         $this->registerPacket(StarGatePackets::RECONNECT_PACKET, new ReconnectPacket());
+        //TODO: forward
+        $this->registerPacket(StarGatePackets::SERVER_INFO_REQUEST_PACKET, new ServerInfoRequestPacket());
+        $this->registerPacket(StarGatePackets::SERVER_INFO_RESPONSE_PACKET, new ServerInfoResponsePacket());
     }
 
     /**
@@ -71,11 +92,19 @@ class ProtocolCodec {
     public function tryEncode(StarGatePacket $packet) : string {
         $encoded = Binary::writeByte($packet->getPacketId());
 
+        $packet->reset();
         $packet->encodePayload();
         $bodyLength = strlen($packet->getBuffer());
+        if ($packet->isResponse() || $packet->sendsResponse()){
+            $bodyLength += 4;
+        }
 
         $encoded .= Binary::writeInt($bodyLength);
         $encoded .= $packet->getBuffer();
+
+        if ($packet->isResponse() || $packet->sendsResponse()){
+            $encoded .= Binary::writeInt($packet->getResponseId());
+        }
         return $encoded;
     }
 
@@ -91,8 +120,16 @@ class ProtocolCodec {
         }
 
         $bodyLength = Binary::readInt(substr($encoded, 1, 4));
+        if ($packet->isResponse() || $packet->sendsResponse()){
+            $bodyLength -= 4;
+        }
+
         $packet->setBuffer(substr($encoded, 5, $bodyLength));
         $packet->decodePayload();
+
+        if ($packet->isResponse() || $packet->sendsResponse()){
+            $packet->setResponseId(Binary::readInt(substr($encoded, $bodyLength+5, 4)));
+        }
         return $packet;
     }
 

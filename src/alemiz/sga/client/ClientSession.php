@@ -1,4 +1,18 @@
 <?php
+/*
+ * Copyright 2020 Alemiz
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
 
 namespace alemiz\sga\client;
 
@@ -8,6 +22,7 @@ use alemiz\sga\protocol\DisconnectPacket;
 use alemiz\sga\protocol\HandshakePacket;
 use alemiz\sga\protocol\PongPacket;
 use alemiz\sga\protocol\StarGatePacket;
+use alemiz\sga\utils\PacketResponse;
 use Exception;
 use pocketmine\plugin\PluginLogger;
 use function get_class;
@@ -18,6 +33,11 @@ class ClientSession {
     private $client;
     /** @var StarGateConnection */
     private $connection;
+
+    /** @var int */
+    private $responseCounter = 0;
+    /** @var PacketResponse[] */
+    private $pendingResponses = [];
 
     /** @var StarGatePacketHandler|null */
     private $packetHandler;
@@ -73,6 +93,12 @@ class ClientSession {
     private function onPacket(StarGatePacket $packet) : void {
         $handled = $this->packetHandler !== null && $packet->handle($this->packetHandler);
 
+        if ($packet->isResponse() && isset($this->pendingResponses[$packet->getResponseId()])){
+            $response = $this->pendingResponses[$packet->getResponseId()];
+            $response->complete($packet);
+            unset($this->pendingResponses[$packet->getResponseId()]);
+        }
+
         $customHandler = $this->client->getCustomHandler();
         if ($customHandler !== null){
             try {
@@ -88,6 +114,25 @@ class ClientSession {
         if (!$handled){
             $this->getLogger()->debug("Unhandled packet ".get_class($packet));
         }
+    }
+
+    /**
+     * @param StarGatePacket $packet
+     * @return PacketResponse|null
+     */
+    public function responsePacket(StarGatePacket $packet) : ?PacketResponse {
+        if (!$packet->sendsResponse()){
+            return null;
+        }
+
+        $responseId = $this->responseCounter++;
+        $packet->setResponseId($responseId);
+        $this->sendPacket($packet);
+
+        if (!isset($this->pendingResponses[$responseId])){
+            $this->pendingResponses[$responseId] = new PacketResponse();
+        }
+        return $this->pendingResponses[$responseId];
     }
 
     /**
