@@ -25,6 +25,7 @@ use alemiz\sga\protocol\ReconnectPacket;
 use alemiz\sga\protocol\ServerHandshakePacket;
 use alemiz\sga\protocol\ServerInfoRequestPacket;
 use alemiz\sga\protocol\ServerInfoResponsePacket;
+use alemiz\sga\protocol\ServerTransferPacket;
 
 abstract class StarGatePacketHandler {
 
@@ -97,6 +98,14 @@ abstract class StarGatePacketHandler {
      * @return bool
      */
     public function handleServerInfoResponse(ServerInfoResponsePacket $packet) : bool {
+        return false;
+    }
+
+    /**
+     * @param ServerTransferPacket $packet
+     * @return bool
+     */
+    public function handleServerTransfer(ServerTransferPacket $packet) : bool {
         return false;
     }
 }

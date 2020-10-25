@@ -17,6 +17,7 @@
 namespace alemiz\sga\codec;
 
 use alemiz\sga\protocol\DisconnectPacket;
+use alemiz\sga\protocol\ForwardPacket;
 use alemiz\sga\protocol\HandshakePacket;
 use alemiz\sga\protocol\PingPacket;
 use alemiz\sga\protocol\PongPacket;
@@ -24,6 +25,7 @@ use alemiz\sga\protocol\ReconnectPacket;
 use alemiz\sga\protocol\ServerHandshakePacket;
 use alemiz\sga\protocol\ServerInfoRequestPacket;
 use alemiz\sga\protocol\ServerInfoResponsePacket;
+use alemiz\sga\protocol\ServerTransferPacket;
 use alemiz\sga\protocol\StarGatePacket;
 use pocketmine\utils\Binary;
 use function strlen;
@@ -46,9 +48,10 @@ class ProtocolCodec {
         $this->registerPacket(StarGatePackets::PING_PACKET, new PingPacket());
         $this->registerPacket(StarGatePackets::PONG_PACKET, new PongPacket());
         $this->registerPacket(StarGatePackets::RECONNECT_PACKET, new ReconnectPacket());
-        //TODO: forward
+        $this->registerPacket(StarGatePackets::FORWARD_PACKET, new ForwardPacket());
         $this->registerPacket(StarGatePackets::SERVER_INFO_REQUEST_PACKET, new ServerInfoRequestPacket());
         $this->registerPacket(StarGatePackets::SERVER_INFO_RESPONSE_PACKET, new ServerInfoResponsePacket());
+        $this->registerPacket(StarGatePackets::SERVER_TRANSFER_PACKET, new ServerTransferPacket());
     }
 
     /**
