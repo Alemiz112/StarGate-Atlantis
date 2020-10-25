@@ -22,9 +22,11 @@ use alemiz\sga\events\ClientConnectedEvent;
 use alemiz\sga\events\ClientDisconnectedEvent;
 use alemiz\sga\handler\SessionHandler;
 use alemiz\sga\protocol\DisconnectPacket;
+use alemiz\sga\protocol\StarGatePacket;
 use alemiz\sga\protocol\types\HandshakeData;
 use alemiz\sga\StarGateAtlantis;
 
+use alemiz\sga\utils\PacketResponse;
 use pocketmine\plugin\PluginLogger;
 use pocketmine\scheduler\Task;
 use pocketmine\Server;
@@ -107,6 +109,26 @@ class StarGateClient extends Task {
     public function onSessionDisconnected() : void {
         $event = new ClientDisconnectedEvent($this, $this->loader);
         $event->call();
+    }
+
+    /**
+     * @param StarGatePacket $packet
+     */
+    public function sendPacket(StarGatePacket $packet) : void {
+        if ($this->session !== null){
+            $this->session->sendPacket($packet);
+        }
+    }
+
+    /**
+     * @param StarGatePacket $packet
+     * @return PacketResponse|null
+     */
+    public function responsePacket(StarGatePacket $packet) : ?PacketResponse {
+        if ($this->session !== null){
+            return $this->session->responsePacket($packet);
+        }
+        return null;
     }
 
     public function shutdown() : void {

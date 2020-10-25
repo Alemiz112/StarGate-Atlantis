@@ -12,3 +12,5 @@ connections:
 # Interval in ticks to receive data from connection
 # Lower interval, faster packet decoding and encoding
 tickInterval: 2
+# Default client will be used if no clientName specified in api functions
+defaultClient: "lobby1"

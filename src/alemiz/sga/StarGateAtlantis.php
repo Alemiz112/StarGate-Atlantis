@@ -18,9 +18,12 @@ namespace alemiz\sga;
 
 use alemiz\sga\client\StarGateClient;
 use alemiz\sga\events\ClientCreationEvent;
+use alemiz\sga\protocol\ServerInfoRequestPacket;
+use alemiz\sga\protocol\ServerTransferPacket;
 use alemiz\sga\protocol\types\HandshakeData;
+use alemiz\sga\utils\PacketResponse;
+use pocketmine\Player;
 use pocketmine\plugin\PluginBase;
-use function var_dump;
 
 class StarGateAtlantis extends PluginBase{
 
@@ -33,9 +36,13 @@ class StarGateAtlantis extends PluginBase{
     /** @var int */
     private $tickInterval;
 
+    /** @var string */
+    private $defaultClient;
+
     public function onEnable() : void {
         self::$instance = $this;
 		$this->tickInterval = $this->getConfig()->get("tickInterval");
+		$this->defaultClient = $this->getConfig()->get("defaultClient");
 
 		$this->clients = [];
         foreach ($this->getConfig()->get("connections") as $clientName => $ignore){
@@ -69,7 +76,9 @@ class StarGateAtlantis extends PluginBase{
      * @param StarGateClient $client
      */
     public function onClientCreation(string $clientName, StarGateClient $client) : void {
-        //TODO: register packets
+        if (isset($this->clients[$clientName])){
+            return;
+        }
 
         $event = new ClientCreationEvent($client, $this);
         $event->call();
@@ -92,5 +101,51 @@ class StarGateAtlantis extends PluginBase{
      */
     public function getTickInterval() : int {
         return $this->tickInterval;
+    }
+
+    public function getClient(string $clientName) : ?StarGateClient {
+        return $this->clients[$clientName] ?? null;
+    }
+
+    /**
+     * @return StarGateClient|null
+     */
+    public function getDefaultClient() : ?StarGateClient {
+        return $this->getClient($this->defaultClient);
+    }
+
+    /**
+     * Transfer player to another server.
+     * @param Player $player instance to be transferred.
+     * @param string $targetServer server where player will be sent.
+     * @param string|null $clientName client name that will be used.
+     */
+    public function transferPlayer(Player $player, string $targetServer, ?string $clientName = null) : void {
+        $client = $this->getClient($clientName ?? $this->defaultClient);
+        if ($client === null){
+            return;
+        }
+        $packet = new ServerTransferPacket();
+        $packet->setPlayerName($player->getName());
+        $packet->setTargetServer($targetServer);
+        $client->sendPacket($packet);
+    }
+
+    /**
+     * Get info about another server or master server.
+     * @param string $serverName name of server that info will be send. In selfMode it can be custom.
+     * @param bool $selfMode if send info of master server, StarGate server.
+     * @param string|null $clientName client name that will be used.
+     * @return PacketResponse|null future that can be used to get response data.
+     */
+    public function serverInfo(string $serverName, bool $selfMode, ?string $clientName = null) : ?PacketResponse {
+        $client = $this->getClient($clientName ?? $this->defaultClient);
+        if ($client === null){
+            return null;
+        }
+        $packet = new ServerInfoRequestPacket();
+        $packet->setServerName($serverName);
+        $packet->setSelfInfo($selfMode);
+        return $client->responsePacket($packet);
     }
 }
