@@ -132,13 +132,13 @@ class StarGateConnection extends Thread {
             return;
         }
 
-        $data = socket_read($this->socket, 65536, PHP_BINARY_READ);
+        $data = @socket_read($this->socket, 65536, PHP_BINARY_READ);
         if ($data !== ""){
             $this->buffer .= $data;
         }
 
         while (($packet = $this->outRead()) !== null && $packet !== ""){
-            if (socket_write($this->socket, $packet) === false){
+            if (@socket_write($this->socket, $packet) === false){
                 goto error;
             }
         }
@@ -161,8 +161,7 @@ class StarGateConnection extends Thread {
 
             $magic = Binary::readShort(substr($this->buffer, $offset, 2));
             if ($magic !== ProtocolCodec::STARGATE_MAGIC){
-                //throw new StarGateException("'Magic does not match!");
-                echo "MAGIC: ".$magic." Excepted: ".ProtocolCodec::STARGATE_MAGIC."\n";
+                throw new StarGateException("'Magic does not match!");
             }
 
             $bodyLength = Binary::readInt(substr($this->buffer, $offset + 3, 4));

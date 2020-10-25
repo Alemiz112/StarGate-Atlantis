@@ -20,12 +20,17 @@ use alemiz\sga\codec\StarGatePacketHandler;
 use alemiz\sga\handler\HandshakePacketHandler;
 use alemiz\sga\protocol\DisconnectPacket;
 use alemiz\sga\protocol\HandshakePacket;
+use alemiz\sga\protocol\PingPacket;
 use alemiz\sga\protocol\PongPacket;
 use alemiz\sga\protocol\StarGatePacket;
 use alemiz\sga\utils\PacketResponse;
+use alemiz\sga\utils\PingEntry;
+use alemiz\sga\utils\StarGateException;
+use alemiz\sga\utils\StarGateFuture;
 use Exception;
 use pocketmine\plugin\PluginLogger;
 use function get_class;
+use function microtime;
 
 class ClientSession {
 
@@ -41,6 +46,9 @@ class ClientSession {
 
     /** @var StarGatePacketHandler|null */
     private $packetHandler;
+
+    /** @var PingEntry */
+    private $pingEntry;
 
     /**
      * ClientSession constructor.
@@ -84,6 +92,13 @@ class ClientSession {
                 $this->getLogger()->error("§cCan not decode StarGate packet!");
                 $this->getLogger()->logException($e);
             }
+        }
+
+
+        $currentTime = microtime(true) * 1000;
+        if ($this->pingEntry !== null && $currentTime >= $this->pingEntry->getTimeout()){
+            $this->pingEntry->getFuture()->completeExceptionally(new StarGateException("Ping Timeout!"));
+            $this->pingEntry = null;
         }
     }
 
@@ -156,10 +171,31 @@ class ClientSession {
     }
 
     /**
+     * @param int $timeout
+     * @return StarGateFuture
+     */
+    public function pingServer(int $timeout) : StarGateFuture {
+        if ($this->pingEntry === null){
+            $now = microtime(true) * 1000;
+            $this->pingEntry = new PingEntry(new StarGateFuture(), $now + $timeout);
+
+            $packet = new PingPacket();
+            $packet->setPingTime($now);
+            $this->sendPacket($packet);
+        }
+        return $this->pingEntry->getFuture();
+    }
+
+    /**
      * @param PongPacket $packet
      */
     public function onPongReceive(PongPacket $packet) : void {
-        //TODO:
+        if ($this->pingEntry === null){
+            return;
+        }
+        $packet->setPongTime(microtime(true) * 1000);
+        $this->pingEntry->getFuture()->complete($packet);
+        $this->pingEntry = null;
     }
 
     /**

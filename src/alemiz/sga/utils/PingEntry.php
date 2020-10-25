@@ -16,9 +16,37 @@
 
 namespace alemiz\sga\utils;
 
-use alemiz\sga\protocol\StarGatePacket;
 use Closure;
 
-class PacketResponse extends StarGateFuture {
+class PingEntry {
+
+    /** @var StarGateFuture */
+    private $future;
+    /** @var int */
+    private $timeout;
+
+    /**
+     * PingEntry constructor.
+     * @param StarGateFuture $future
+     * @param int $timeout
+     */
+    public function __construct(StarGateFuture $future, int $timeout) {
+        $this->future = $future;
+        $this->timeout = $timeout;
+    }
+
+    /**
+     * @return StarGateFuture
+     */
+    public function getFuture() : StarGateFuture {
+        return $this->future;
+    }
+
+    /**
+     * @return int
+     */
+    public function getTimeout() : int {
+        return $this->timeout;
+    }
 
 }
