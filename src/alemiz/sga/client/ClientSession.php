@@ -23,8 +23,8 @@ use alemiz\sga\protocol\HandshakePacket;
 use alemiz\sga\protocol\PingPacket;
 use alemiz\sga\protocol\PongPacket;
 use alemiz\sga\protocol\StarGatePacket;
+use alemiz\sga\protocol\types\PingEntry;
 use alemiz\sga\utils\PacketResponse;
-use alemiz\sga\utils\PingEntry;
 use alemiz\sga\utils\StarGateException;
 use alemiz\sga\utils\StarGateFuture;
 use Exception;
@@ -47,7 +47,7 @@ class ClientSession {
     /** @var StarGatePacketHandler|null */
     private $packetHandler;
 
-    /** @var PingEntry */
+    /** @var PingEntry|null */
     private $pingEntry;
 
     /**
@@ -175,15 +175,17 @@ class ClientSession {
      * @return StarGateFuture
      */
     public function pingServer(int $timeout) : StarGateFuture {
-        if ($this->pingEntry === null){
-            $now = microtime(true) * 1000;
-            $this->pingEntry = new PingEntry(new StarGateFuture(), $now + $timeout);
-
-            $packet = new PingPacket();
-            $packet->setPingTime($now);
-            $this->sendPacket($packet);
+        if ($this->pingEntry !== null){
+            $this->pingEntry->getFuture();
         }
-        return $this->pingEntry->getFuture();
+
+        $now = (int) microtime(true) * 1000;
+        $entry = new PingEntry(new StarGateFuture(), $now + $timeout);
+
+        $packet = new PingPacket();
+        $packet->setPingTime($now);
+        $this->sendPacket($packet);
+        return ($this->pingEntry = $entry)->getFuture();
     }
 
     /**
@@ -193,7 +195,7 @@ class ClientSession {
         if ($this->pingEntry === null){
             return;
         }
-        $packet->setPongTime(microtime(true) * 1000);
+        $packet->setPongTime((int) microtime(true) * 1000);
         $this->pingEntry->getFuture()->complete($packet);
         $this->pingEntry = null;
     }

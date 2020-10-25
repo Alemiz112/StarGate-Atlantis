@@ -44,17 +44,11 @@ class HandshakeData {
         return new HandshakeData($clientName, $password, $software);
     }
 
-    /**
-     * @var string
-     */
+    /** @var string  */
     private $clientName;
-    /**
-     * @var string
-     */
+    /** @var string  */
     private $password;
-    /***
-     * @var string
-     */
+    /** @var int */
     private $software;
 
     public function __construct(string $clientName, string $password, int $software){
@@ -78,9 +72,9 @@ class HandshakeData {
     }
 
     /**
-     * @return string
+     * @return int
      */
-    public function getSoftware() : string {
+    public function getSoftware() : int {
         return $this->software;
     }
 

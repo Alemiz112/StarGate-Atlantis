@@ -20,6 +20,7 @@ use pocketmine\event\Cancellable;
 
 class ClientAuthenticatedEvent extends ClientEvent implements Cancellable {
 
+    /** @var string */
     private $cancelMessage = "Authentication was canceled!";
 
     /**

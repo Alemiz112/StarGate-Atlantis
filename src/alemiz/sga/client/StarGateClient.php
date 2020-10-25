@@ -86,7 +86,7 @@ class StarGateClient extends Task {
      * @param int $currentTick
      */
     public function onRun(int $currentTick) : void {
-        if ($this->isConnected()){
+        if ($this->session !== null && $this->isConnected()){
             $this->session->onTick();
         }
     }
@@ -100,7 +100,6 @@ class StarGateClient extends Task {
     public function onSessionAuthenticated() : void {
         $event = new ClientAuthenticatedEvent($this, $this->loader);
         $event->call();
-
         if ($this->session !== null && $event->isCancelled()){
             $this->session->disconnect($event->getCancelMessage());
         }

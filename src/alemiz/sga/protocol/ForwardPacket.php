@@ -40,7 +40,7 @@ class ForwardPacket extends StarGatePacket {
 
     /** @var string */
     private $clientName;
-    /** @var string */
+    /** @var int */
     private $forwardPacketId;
     /** @var string */
     private $payload;
@@ -87,16 +87,16 @@ class ForwardPacket extends StarGatePacket {
     }
 
     /**
-     * @param string $forwardPacketId
+     * @param int $forwardPacketId
      */
-    public function setForwardPacketId(string $forwardPacketId) : void {
+    public function setForwardPacketId(int $forwardPacketId) : void {
         $this->forwardPacketId = $forwardPacketId;
     }
 
     /**
-     * @return string
+     * @return int
      */
-    public function getForwardPacketId() : string {
+    public function getForwardPacketId() : int {
         return $this->forwardPacketId;
     }
 

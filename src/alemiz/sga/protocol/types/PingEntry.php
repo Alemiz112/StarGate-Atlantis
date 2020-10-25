@@ -14,9 +14,9 @@
  *  limitations under the License.
  */
 
-namespace alemiz\sga\utils;
+namespace alemiz\sga\protocol\types;
 
-use Closure;
+use alemiz\sga\utils\StarGateFuture;
 
 class PingEntry {
 

@@ -62,6 +62,7 @@ class StarGateConnection extends Thread {
     /** @var string */
     private $buffer = "";
 
+    /** @var int */
     private $state = self::STATE_DISCONNECTED;
 
     /**
@@ -175,7 +176,7 @@ class StarGateConnection extends Thread {
             // packetId + body length + buf
             $payload = substr($this->buffer, $offset, ($payloadLen = $bodyLength + 5));
             $this->inputWrite($payload);
-            $offset .= $payloadLen;
+            $offset += $payloadLen;
         }
 
         if ($offset < $len){

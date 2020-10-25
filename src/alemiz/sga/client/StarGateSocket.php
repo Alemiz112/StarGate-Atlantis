@@ -17,6 +17,13 @@
 namespace alemiz\sga\client;
 
 use Exception;
+use RuntimeException;
+use function socket_create;
+use function socket_last_error;
+use function socket_strerror;
+use const AF_INET;
+use const SOCK_STREAM;
+use const SOL_TCP;
 
 class StarGateSocket{
 
@@ -45,19 +52,24 @@ class StarGateSocket{
      * @return bool
      */
     public function connect() : bool {
-        $this->conn->socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
+        $socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
         try {
-            if (!@socket_connect($this->conn->socket, $this->address, $this->port)) {
-                throw new \RuntimeException(socket_strerror(socket_last_error()));
+            if ($socket === false){
+                throw new RuntimeException(socket_strerror(socket_last_error()));
+            }
+            if (!@socket_connect($socket, $this->address, $this->port)) {
+                throw new RuntimeException(socket_strerror(socket_last_error()));
             }
 
-            socket_set_nonblock($this->conn->socket);
-            socket_set_option($this->conn->socket, SOL_TCP, TCP_NODELAY, 1);
+            socket_set_nonblock($socket);
+            socket_set_option($socket, SOL_TCP, TCP_NODELAY, 1);
         }catch (Exception $e){
             $this->conn->getLogger()->error("Can not connect to StarGate server!");
             $this->conn->getLogger()->logException($e);
             return false;
         }
+
+        $this->conn->socket = $socket;
         return true;
     }
 
