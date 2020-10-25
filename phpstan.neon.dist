@@ -7,7 +7,7 @@ parameters:
     paths:
         - /source/src/
     autoload_files:
-            - /pocketmine/Cuboid-PMMP/vendor/autoload.php
+            - phar:///pocketmine/PocketMine-MP.phar/vendor/autoload.php
     autoload_directories:
         - src/alemiz/sga/
     excludes_analyse:
