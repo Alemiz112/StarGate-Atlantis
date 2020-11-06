@@ -120,10 +120,10 @@ class PacketHelper {
 
     /**
      * @param StarGatePacket $buf
-     * @param $array
+     * @param array $array
      * @param Closure $consumer
      */
-    public static function writeArray(StarGatePacket $buf, $array, Closure $consumer) : void {
+    public static function writeArray(StarGatePacket $buf, array $array, Closure $consumer) : void {
         self::writeInt($buf, count($array));
         foreach ($array as $value){
             $consumer($buf, $value);
