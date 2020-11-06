@@ -44,10 +44,13 @@ class ServerInfoResponsePacket extends StarGatePacket {
         PacketHelper::writeInt($this, $this->onlinePlayers);
         PacketHelper::writeInt($this, $this->maxPlayers);
 
-        $players = implode(",", $this->playerList);
-        $servers = implode(",", $this->serverList);
-        PacketHelper::writeString($this, $players);
-        PacketHelper::writeString($this, $servers);
+        PacketHelper::writeArray($this, $this->playerList, static function (StarGatePacket $buf, string $playerName){
+            PacketHelper::writeString($buf, $playerName);
+        });
+
+        PacketHelper::writeArray($this, $this->serverList, static function (StarGatePacket $buf, string $serverName){
+            PacketHelper::writeString($buf, $serverName);
+        });
     }
 
     public function decodePayload() : void {
@@ -57,10 +60,13 @@ class ServerInfoResponsePacket extends StarGatePacket {
         $this->onlinePlayers = PacketHelper::readInt($this);
         $this->maxPlayers = PacketHelper::readInt($this);
 
-        $players = PacketHelper::readString($this);
-        $servers = PacketHelper::readString($this);
-        $this->playerList = explode(",", $players);
-        $this->serverList = explode(",", $servers);
+        $this->playerList = PacketHelper::readArray($this, static function(StarGatePacket $buf){
+           return PacketHelper::readString($buf);
+        });
+
+        $this->serverList = PacketHelper::readArray($this, static function(StarGatePacket $buf){
+            return PacketHelper::readString($buf);
+        });
     }
 
     /**

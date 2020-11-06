@@ -17,6 +17,8 @@
 namespace alemiz\sga\protocol\types;
 
 use alemiz\sga\protocol\StarGatePacket;
+use Closure;
+use function count;
 use function strlen;
 
 class PacketHelper {
@@ -95,11 +97,36 @@ class PacketHelper {
     }
 
     /**
-     * @param StarGatePacket $packet
+     * @param StarGatePacket $buf
      * @return bool
      */
-    public static function readBoolean(StarGatePacket $packet) : bool {
-        return $packet->getByte() === 1;
+    public static function readBoolean(StarGatePacket $buf) : bool {
+        return $buf->getByte() === 1;
     }
 
+    /**
+     * @param StarGatePacket $buf
+     * @param Closure $function
+     * @return array
+     */
+    public static function readArray(StarGatePacket $buf, Closure $function) : array {
+        $length = self::readInt($buf);
+        $array = [];
+        for ($i = 0; $i < $length; $i++){
+            $array[] = $function($buf);
+        }
+        return $array;
+    }
+
+    /**
+     * @param StarGatePacket $buf
+     * @param $array
+     * @param Closure $consumer
+     */
+    public static function writeArray(StarGatePacket $buf, $array, Closure $consumer) : void {
+        self::writeInt($buf, count($array));
+        foreach ($array as $value){
+            $consumer($buf, $value);
+        }
+    }
 }
