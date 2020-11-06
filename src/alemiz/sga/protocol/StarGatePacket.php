@@ -17,6 +17,7 @@
 namespace alemiz\sga\protocol;
 
 use alemiz\sga\codec\StarGatePacketHandler;
+use alemiz\sga\utils\LogLevel;
 use pocketmine\utils\BinaryStream;
 
 abstract class StarGatePacket extends BinaryStream {
@@ -66,5 +67,12 @@ abstract class StarGatePacket extends BinaryStream {
      */
     public function isResponse() : bool {
         return false;
+    }
+
+    /**
+     * @return int
+     */
+    public function getLogLevel() : int {
+        return LogLevel::LEVEL_FILTERED;
     }
 }

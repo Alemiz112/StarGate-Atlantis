@@ -24,6 +24,7 @@ use alemiz\sga\protocol\PingPacket;
 use alemiz\sga\protocol\PongPacket;
 use alemiz\sga\protocol\StarGatePacket;
 use alemiz\sga\protocol\types\PingEntry;
+use alemiz\sga\utils\LogLevel;
 use alemiz\sga\utils\PacketResponse;
 use alemiz\sga\utils\StarGateException;
 use alemiz\sga\utils\StarGateFuture;
@@ -31,6 +32,7 @@ use Exception;
 use pocketmine\plugin\PluginLogger;
 use function get_class;
 use function microtime;
+use function var_dump;
 
 class ClientSession {
 
@@ -49,6 +51,11 @@ class ClientSession {
 
     /** @var PingEntry|null */
     private $pingEntry;
+
+    /** @var int */
+    private $logInputLevel = 0;
+    /** @var int */
+    private $logOutputLevel = 0;
 
     /**
      * ClientSession constructor.
@@ -129,6 +136,10 @@ class ClientSession {
         if (!$handled){
             $this->getLogger()->debug("Unhandled packet ".get_class($packet));
         }
+
+        if ($this->logInputLevel >= $packet->getLogLevel()){
+            $this->getLogger()->debug("Received ".get_class($packet));
+        }
     }
 
     /**
@@ -167,6 +178,11 @@ class ClientSession {
         }catch (Exception $e){
             $this->getLogger()->error("§cCan not encode StarGate packet ".get_class($packet)."!");
             $this->getLogger()->logException($e);
+            return;
+        }
+
+        if ($this->logInputLevel >= $packet->getLogLevel()){
+            $this->getLogger()->debug("Sent ".get_class($packet));
         }
     }
 
@@ -291,6 +307,34 @@ class ClientSession {
      */
     public function getConnection() : StarGateConnection {
         return $this->connection;
+    }
+
+    /**
+     * @param int $logInputLevel
+     */
+    public function setLogInputLevel(int $logInputLevel) : void {
+        $this->logInputLevel = $logInputLevel;
+    }
+
+    /**
+     * @return int
+     */
+    public function getLogInputLevel() : int {
+        return $this->logInputLevel;
+    }
+
+    /**
+     * @param int $logOutputLevel
+     */
+    public function setLogOutputLevel(int $logOutputLevel) : void {
+        $this->logOutputLevel = $logOutputLevel;
+    }
+
+    /**
+     * @return int
+     */
+    public function getLogOutputLevel() : int {
+        return $this->logOutputLevel;
     }
 
 }

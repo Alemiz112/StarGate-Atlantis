@@ -19,6 +19,7 @@ namespace alemiz\sga\protocol;
 use alemiz\sga\codec\StarGatePacketHandler;
 use alemiz\sga\codec\StarGatePackets;
 use alemiz\sga\protocol\types\PacketHelper;
+use alemiz\sga\utils\LogLevel;
 
 class DisconnectPacket extends StarGatePacket {
 
@@ -59,5 +60,12 @@ class DisconnectPacket extends StarGatePacket {
      */
     public function getReason() : string {
         return $this->reason;
+    }
+
+    /**
+     * @return int
+     */
+    public function getLogLevel() : int {
+        return LogLevel::LEVEL_ALL;
     }
 }

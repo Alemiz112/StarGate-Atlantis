@@ -39,10 +39,14 @@ class StarGateAtlantis extends PluginBase{
     /** @var string */
     private $defaultClient;
 
+    /** @var int */
+    private $logLevel;
+
     public function onEnable() : void {
         self::$instance = $this;
 		$this->tickInterval = $this->getConfig()->get("tickInterval");
 		$this->defaultClient = $this->getConfig()->get("defaultClient");
+		$this->logLevel = $this->getConfig()->get("logLevel");
 
 		$this->clients = [];
         foreach ($this->getConfig()->get("connections") as $clientName => $ignore){
@@ -112,6 +116,27 @@ class StarGateAtlantis extends PluginBase{
      */
     public function getDefaultClient() : ?StarGateClient {
         return $this->getClient($this->defaultClient);
+    }
+
+    /**
+     * @return StarGateClient[]
+     */
+    public function getClients() : array {
+        return $this->clients;
+    }
+
+    /**
+     * @param int $logLevel
+     */
+    public function setLogLevel(int $logLevel) : void {
+        $this->logLevel = $logLevel;
+    }
+
+    /**
+     * @return int
+     */
+    public function getLogLevel() : int {
+        return $this->logLevel;
     }
 
     /**

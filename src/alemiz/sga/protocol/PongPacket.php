@@ -19,6 +19,7 @@ namespace alemiz\sga\protocol;
 use alemiz\sga\codec\StarGatePacketHandler;
 use alemiz\sga\codec\StarGatePackets;
 use alemiz\sga\protocol\types\PacketHelper;
+use alemiz\sga\utils\LogLevel;
 
 class PongPacket extends StarGatePacket {
 
@@ -75,4 +76,10 @@ class PongPacket extends StarGatePacket {
         return $this->pongTime;
     }
 
+    /**
+     * @return int
+     */
+    public function getLogLevel() : int {
+        return LogLevel::LEVEL_ALL;
+    }
 }

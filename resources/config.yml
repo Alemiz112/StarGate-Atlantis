@@ -9,6 +9,11 @@ connections:
     port: 47007
     password: 123456789
 
+# Change log level to log packets in debug mode.
+# Set to 0 for no packet logs.
+# Set to 1 to log packets except Ping, Pong and connection packets.
+# Set to 2 to log all packets.
+logLevel: 0
 # Interval in ticks to receive data from connection
 # Lower interval, faster packet decoding and encoding
 tickInterval: 2

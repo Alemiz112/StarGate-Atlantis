@@ -19,6 +19,7 @@ namespace alemiz\sga\protocol;
 use alemiz\sga\codec\StarGatePacketHandler;
 use alemiz\sga\codec\StarGatePackets;
 use alemiz\sga\protocol\types\HandshakeData;
+use alemiz\sga\utils\LogLevel;
 
 class HandshakePacket extends StarGatePacket {
 
@@ -57,5 +58,12 @@ class HandshakePacket extends StarGatePacket {
      */
     public function getHandshakeData() : HandshakeData{
         return $this->handshakeData;
+    }
+
+    /**
+     * @return int
+     */
+    public function getLogLevel() : int {
+        return LogLevel::LEVEL_ALL;
     }
 }

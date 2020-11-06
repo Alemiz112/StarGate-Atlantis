@@ -95,6 +95,11 @@ class StarGateClient extends Task {
         $this->logger->info("§bClient ".$this->getClientName()." has connected!");
         $event = new ClientConnectedEvent($this, $this->loader);
         $event->call();
+
+        if ($this->session !== null){
+            $this->session->setLogInputLevel($this->loader->getLogLevel());
+            $this->session->setLogOutputLevel($this->loader->getLogLevel());
+        }
     }
 
     public function onSessionAuthenticated() : void {
