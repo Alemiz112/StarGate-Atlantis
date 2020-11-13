@@ -19,12 +19,10 @@ namespace alemiz\sga\client;
 use alemiz\sga\codec\ProtocolCodec;
 use alemiz\sga\protocol\types\HandshakeData;
 use alemiz\sga\utils\StarGateException;
-use ClassLoader;
 use pocketmine\Thread;
 use pocketmine\utils\Binary;
 use Threaded;
 use ThreadedLogger;
-use function socket_getpeername;
 use function socket_read;
 use function strlen;
 use function substr;
@@ -68,22 +66,20 @@ class StarGateConnection extends Thread {
     /**
      * StarGateConnection constructor.
      * @param ThreadedLogger $logger
-     * @param ClassLoader $loader
      * @param string $address
      * @param int $port
      * @param HandshakeData $handshakeData
      */
-    public function __construct(ThreadedLogger $logger, ClassLoader $loader, string $address, int $port, HandshakeData $handshakeData){
+    public function __construct(ThreadedLogger $logger, string $address, int $port, HandshakeData $handshakeData){
         $this->logger = $logger;
         $this->address = $address;
         $this->port = $port;
         $this->handshakeData = $handshakeData;
-        $this->setClassLoader($loader);
         $this->starGateSocket = new StarGateSocket($this, $this->address, $this->port);
 
         $this->input = new Threaded();
         $this->output = new Threaded();
-        $this->start();
+        $this->start(PTHREADS_INHERIT_NONE);
     }
 
     public function run() : void {

@@ -67,7 +67,7 @@ class ClientSession {
         $this->client = $client;
         $server = $client->getServer();
         $this->packetHandler = new HandshakePacketHandler($this);
-        $this->connection = new StarGateConnection($server->getLogger(), $server->getLoader(), $address, $port, $client->getHandshakeData());
+        $this->connection = new StarGateConnection($server->getLogger(), $address, $port, $client->getHandshakeData());
     }
 
     public function onConnect() : void {
