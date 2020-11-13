@@ -165,15 +165,16 @@ class StarGateConnection extends Thread {
                 throw new StarGateException("'Magic does not match!");
             }
 
+            // Offset + 3 = 2bytes magic + 1byte packetId
             $bodyLength = Binary::readInt(substr($this->buffer, $offset + 3, 4));
             $offset += 2;
 
             if (($len - $offset) <= $bodyLength){
-                $offset -= 2;
+                $offset -= 2; // We dont have full payload
                 break;
             }
 
-            // packetId + body length + buf
+            // PacketId + body length + buf
             $payload = substr($this->buffer, $offset, ($payloadLen = $bodyLength + 5));
             $this->inputWrite($payload);
             $offset += $payloadLen;

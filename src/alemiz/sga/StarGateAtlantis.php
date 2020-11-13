@@ -42,11 +42,15 @@ class StarGateAtlantis extends PluginBase{
     /** @var int */
     private $logLevel;
 
+    /** @var bool */
+    private $autoStart;
+
     public function onEnable() : void {
         self::$instance = $this;
 		$this->tickInterval = $this->getConfig()->get("tickInterval");
 		$this->defaultClient = $this->getConfig()->get("defaultClient");
 		$this->logLevel = $this->getConfig()->get("logLevel");
+		$this->autoStart = $this->getConfig()->get("autoStart");
 
 		$this->clients = [];
         foreach ($this->getConfig()->get("connections") as $clientName => $ignore){
@@ -87,10 +91,13 @@ class StarGateAtlantis extends PluginBase{
         $event = new ClientCreationEvent($client, $this);
         $event->call();
 
-        if (!$event->isCancelled()){
-            $client->connect();
-            $this->clients[$clientName] = $client;
+        if ($event->isCancelled()){
+            return;
         }
+        if ($this->autoStart){
+            $client->connect();
+        }
+        $this->clients[$clientName] = $client;
     }
 
     /**
