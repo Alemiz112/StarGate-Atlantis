@@ -145,8 +145,18 @@ class StarGateClient extends Task {
         }
     }
 
+    /**
+     * @return bool
+     */
     public function isConnected() : bool {
         return $this->session !== null && $this->session->isConnected();
+    }
+
+    /**
+     * @return bool
+     */
+    public function isAuthenticated() : bool {
+        return $this->session !== null && $this->session->isAuthenticated();
     }
 
     /**

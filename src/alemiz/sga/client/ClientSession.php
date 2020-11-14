@@ -275,6 +275,13 @@ class ClientSession {
     }
 
     /**
+     * @return bool
+     */
+    public function isAuthenticated() : bool {
+        return $this->connection->getState() === StarGateConnection::STATE_AUTHENTICATED;
+    }
+
+    /**
      * @return StarGatePacketHandler|null
      */
     public function getPacketHandler(): ?StarGatePacketHandler {
