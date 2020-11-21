@@ -5,6 +5,7 @@ use ClassLoader;
 use pocketmine\Thread;
 use Threaded;
 use ThreadedLogger;
+use const PTHREADS_INHERIT_NONE;
 
 class StarGateConnection extends Thread {
 
@@ -61,7 +62,7 @@ class StarGateConnection extends Thread {
         $this->input = new Threaded();
         $this->output = new Threaded();
 
-        $this->start();
+        $this->start(PTHREADS_INHERIT_NONE);
     }
 
     public function run() : void {
