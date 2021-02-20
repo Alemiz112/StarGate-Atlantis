@@ -19,6 +19,7 @@ namespace alemiz\sga\handler;
 use alemiz\sga\client\ClientSession;
 use alemiz\sga\codec\StarGatePacketHandler;
 use alemiz\sga\protocol\DisconnectPacket;
+use alemiz\sga\protocol\UnknownPacket;
 
 class SessionHandler extends StarGatePacketHandler {
 
@@ -42,6 +43,15 @@ class SessionHandler extends StarGatePacketHandler {
      */
     public function handleDisconnect(DisconnectPacket $packet) : bool {
         $this->session->onDisconnect($packet->getReason());
+        return true;
+    }
+
+    /**
+     * @param UnknownPacket $packet
+     * @return bool
+     */
+    public function handleUnknown(UnknownPacket $packet): bool {
+        $this->session->getLogger()->info("Received UnknownPacket packetId=".$packet->getPacketId()." payload=".$packet->getPayload());
         return true;
     }
 

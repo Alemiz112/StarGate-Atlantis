@@ -27,6 +27,7 @@ use alemiz\sga\protocol\ServerInfoRequestPacket;
 use alemiz\sga\protocol\ServerInfoResponsePacket;
 use alemiz\sga\protocol\ServerTransferPacket;
 use alemiz\sga\protocol\StarGatePacket;
+use alemiz\sga\protocol\UnknownPacket;
 use pocketmine\utils\Binary;
 use function strlen;
 use function substr;
@@ -94,20 +95,16 @@ class ProtocolCodec {
      */
     public function tryEncode(StarGatePacket $packet) : string {
         $encoded = Binary::writeByte($packet->getPacketId());
+        if ($packet->isResponse() || $packet->sendsResponse()){
+            $encoded .= Binary::writeInt($packet->getResponseId());
+        }
 
         $packet->reset();
         $packet->encodePayload();
         $bodyLength = strlen($packet->getBuffer());
-        if ($packet->isResponse() || $packet->sendsResponse()){
-            $bodyLength += 4;
-        }
 
         $encoded .= Binary::writeInt($bodyLength);
         $encoded .= $packet->getBuffer();
-
-        if ($packet->isResponse() || $packet->sendsResponse()){
-            $encoded .= Binary::writeInt($packet->getResponseId());
-        }
         return $encoded;
     }
 
@@ -119,20 +116,19 @@ class ProtocolCodec {
         $packetId = Binary::readByte($encoded);
         $packet = $this->getPacketInstance($packetId);
         if ($packet === null){
-            return null;
+            $packet = new UnknownPacket();
+            $packet->setPacketId($packetId);
         }
 
-        $bodyLength = Binary::readInt(substr($encoded, 1, 4));
+        $index = 1;
         if ($packet->isResponse() || $packet->sendsResponse()){
-            $bodyLength -= 4;
+            $packet->setResponseId(Binary::readInt(substr($encoded, $index, 4)));
+            $index += 4;
         }
 
-        $packet->setBuffer(substr($encoded, 5, $bodyLength));
+        $bodyLength = Binary::readInt(substr($encoded, $index, 4));
+        $packet->setBuffer(substr($encoded, $index + 4, $bodyLength));
         $packet->decodePayload();
-
-        if ($packet->isResponse() || $packet->sendsResponse()){
-            $packet->setResponseId(Binary::readInt(substr($encoded, $bodyLength+5, 4)));
-        }
         return $packet;
     }
 

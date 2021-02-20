@@ -31,6 +31,7 @@ class HandshakeData {
         PacketHelper::writeInt($packet, $handshakeData->getSoftware());
         PacketHelper::writeString($packet, $handshakeData->getClientName());
         PacketHelper::writeString($packet, $handshakeData->getPassword());
+        PacketHelper::writeInt($packet, $handshakeData->getProtocolVersion());
     }
 
     /**
@@ -41,7 +42,8 @@ class HandshakeData {
         $software = PacketHelper::readInt($packet);
         $clientName = PacketHelper::readString($packet);
         $password = PacketHelper::readString($packet);
-        return new HandshakeData($clientName, $password, $software);
+        $protocolVersion = PacketHelper::readInt($packet);
+        return new HandshakeData($clientName, $password, $software, $protocolVersion);
     }
 
     /** @var string  */
@@ -50,11 +52,21 @@ class HandshakeData {
     private $password;
     /** @var int */
     private $software;
+    /** @var int */
+    private $protocolVersion;
 
-    public function __construct(string $clientName, string $password, int $software){
+    /**
+     * HandshakeData constructor.
+     * @param string $clientName
+     * @param string $password
+     * @param int $software
+     * @param int $protocolVersion
+     */
+    public function __construct(string $clientName, string $password, int $software, int $protocolVersion){
         $this->clientName = $clientName;
         $this->password = $password;
         $this->software = $software;
+        $this->protocolVersion = $protocolVersion;
     }
 
     /**
@@ -78,4 +90,10 @@ class HandshakeData {
         return $this->software;
     }
 
+    /**
+     * @return int
+     */
+    public function getProtocolVersion() : int {
+        return $this->protocolVersion;
+    }
 }

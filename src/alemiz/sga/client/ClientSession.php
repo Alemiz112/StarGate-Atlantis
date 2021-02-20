@@ -119,6 +119,7 @@ class ClientSession {
             $response = $this->pendingResponses[$packet->getResponseId()];
             $response->complete($packet);
             unset($this->pendingResponses[$packet->getResponseId()]);
+            $handled = true;
         }
 
         $customHandler = $this->client->getCustomHandler();

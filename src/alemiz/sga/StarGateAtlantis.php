@@ -27,6 +27,8 @@ use pocketmine\plugin\PluginBase;
 
 class StarGateAtlantis extends PluginBase{
 
+    public const STARGATE_VERSION = 1;
+
     /** @var StarGateAtlantis */
     private static $instance;
 
@@ -74,7 +76,7 @@ class StarGateAtlantis extends PluginBase{
         }
 
         $config = $this->getConfig()->get("connections")[$clientName];
-        $handshakeData = new HandshakeData($clientName, $config["password"], HandshakeData::SOFTWARE_POCKETMINE);
+        $handshakeData = new HandshakeData($clientName, $config["password"], HandshakeData::SOFTWARE_POCKETMINE, self::STARGATE_VERSION);
         $client = new StarGateClient($config["address"], (int) $config["port"], $handshakeData, $this);
         $this->onClientCreation($clientName, $client);
     }

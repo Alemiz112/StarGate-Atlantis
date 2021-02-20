@@ -26,6 +26,7 @@ use alemiz\sga\protocol\ServerHandshakePacket;
 use alemiz\sga\protocol\ServerInfoRequestPacket;
 use alemiz\sga\protocol\ServerInfoResponsePacket;
 use alemiz\sga\protocol\ServerTransferPacket;
+use alemiz\sga\protocol\UnknownPacket;
 
 abstract class StarGatePacketHandler {
 
@@ -106,6 +107,14 @@ abstract class StarGatePacketHandler {
      * @return bool
      */
     public function handleServerTransfer(ServerTransferPacket $packet) : bool {
+        return false;
+    }
+
+    /**
+     * @param UnknownPacket $packet
+     * @return bool
+     */
+    public function handleUnknown(UnknownPacket $packet) : bool {
         return false;
     }
 }
