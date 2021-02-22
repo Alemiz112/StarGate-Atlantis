@@ -143,6 +143,26 @@ class StarGateConnection extends Thread {
         $this->readBuffer();
     }
 
+    /**
+     * @param string $buffer
+     * @param int $len
+     * @param int $offset
+     * @return int
+     */
+    private function verifyHeader(string $buffer, int $len, int $offset) : int {
+        if (($offset + 2) > $len) {
+            // No PacketId + Response info
+            return 0;
+        }
+
+        $index = 1; // PacketID
+        $supportsResponse = Binary::readBool($buffer[$offset + $index++]);
+        if ($supportsResponse) {
+            $index += 4; // Skip ResponseID
+        }
+        return $index;
+    }
+
     private function readBuffer() : void {
         if (empty($this->buffer)){
             return;
@@ -151,8 +171,8 @@ class StarGateConnection extends Thread {
         $offset = 0;
         $len = strlen($this->buffer);
         while ($offset < $len){
-            // Packet header consists of 7 bytes
-            if ($offset > ($len - 7)) {
+            // Packet header consists of 8 bytes
+            if ($offset > ($len - 4)) {
                 break;
             }
 
@@ -160,18 +180,27 @@ class StarGateConnection extends Thread {
             if ($magic !== ProtocolCodec::STARGATE_MAGIC){
                 throw new StarGateException("'Magic does not match!");
             }
-
-            // Offset + 3 = 2bytes magic + 1byte packetId
-            $bodyLength = Binary::readInt(substr($this->buffer, $offset + 3, 4));
             $offset += 2;
 
-            if (($len - $offset) <= $bodyLength){
-                $offset -= 2; // We dont have full payload
+            $headerLen = $this->verifyHeader($this->buffer, $len, $offset);
+            if ($headerLen < 1 || ($offset + $headerLen + 4) > $len) {
+                // Buffer is not complete
+                $offset -= 2;
                 break;
             }
 
-            // PacketId + body length + buf
-            $payload = substr($this->buffer, $offset, ($payloadLen = $bodyLength + 5));
+            $bodyLength = Binary::readInt(substr($this->buffer, $offset + $headerLen, 4));
+            $headerLen += 4;
+
+            if (($len - $offset) <= $bodyLength){
+                // We dont have full payload
+                // Reset offset and wait for payload
+                $offset -= 2;
+                break;
+            }
+
+            // Header length + Packet payload length
+            $payload = substr($this->buffer, $offset, ($payloadLen = $headerLen + $bodyLength));
             $this->inputWrite($payload);
             $offset += $payloadLen;
         }

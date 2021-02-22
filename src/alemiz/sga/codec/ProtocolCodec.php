@@ -95,7 +95,9 @@ class ProtocolCodec {
      */
     public function tryEncode(StarGatePacket $packet) : string {
         $encoded = Binary::writeByte($packet->getPacketId());
-        if ($packet->isResponse() || $packet->sendsResponse()){
+        $supportsResponse = $packet->isResponse() || $packet->sendsResponse();
+        $encoded .= Binary::writeBool($supportsResponse);
+        if ($supportsResponse){
             $encoded .= Binary::writeInt($packet->getResponseId());
         }
 
@@ -114,20 +116,21 @@ class ProtocolCodec {
      */
     public function tryDecode(string $encoded) : ?StarGatePacket {
         $packetId = Binary::readByte($encoded);
+        $offset = 1;
+
         $packet = $this->getPacketInstance($packetId);
         if ($packet === null){
             $packet = new UnknownPacket();
             $packet->setPacketId($packetId);
         }
 
-        $index = 1;
-        if ($packet->isResponse() || $packet->sendsResponse()){
-            $packet->setResponseId(Binary::readInt(substr($encoded, $index, 4)));
-            $index += 4;
+        if (Binary::readBool($encoded[$offset++])){
+            $packet->setResponseId(Binary::readInt(substr($encoded, $offset, 4)));
+            $offset += 4;
         }
 
-        $bodyLength = Binary::readInt(substr($encoded, $index, 4));
-        $packet->setBuffer(substr($encoded, $index + 4, $bodyLength));
+        $bodyLength = Binary::readInt(substr($encoded, $offset, 4));
+        $packet->setBuffer(substr($encoded, $offset + 4, $bodyLength));
         $packet->decodePayload();
         return $packet;
     }
