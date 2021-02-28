@@ -27,7 +27,7 @@ use pocketmine\plugin\PluginBase;
 
 class StarGateAtlantis extends PluginBase{
 
-    public const STARGATE_VERSION = 1;
+    public const STARGATE_VERSION = 2;
 
     /** @var StarGateAtlantis */
     private static $instance;
