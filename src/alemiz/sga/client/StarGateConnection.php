@@ -171,8 +171,8 @@ class StarGateConnection extends Thread {
         $offset = 0;
         $len = strlen($this->buffer);
         while ($offset < $len){
-            // Packet header consists of 8 bytes
-            if ($offset > ($len - 4)) {
+            if ($offset > ($len - 6)) {
+                // Tried to decode invalid buffer
                 break;
             }
 
@@ -182,27 +182,18 @@ class StarGateConnection extends Thread {
             }
             $offset += 2;
 
-            $headerLen = $this->verifyHeader($this->buffer, $len, $offset);
-            if ($headerLen < 1 || ($offset + $headerLen + 4) > $len) {
-                // Buffer is not complete
+            $length = Binary::readInt(substr($this->buffer, $offset, 4));
+            $offset += 4;
+
+            if (($offset + $length) > $len) {
+                // Received incomplete packet
                 $offset -= 2;
                 break;
             }
 
-            $bodyLength = Binary::readInt(substr($this->buffer, $offset + $headerLen, 4));
-            $headerLen += 4;
-
-            if (($len - $offset) <= $bodyLength){
-                // We dont have full payload
-                // Reset offset and wait for payload
-                $offset -= 2;
-                break;
-            }
-
-            // Header length + Packet payload length
-            $payload = substr($this->buffer, $offset, ($payloadLen = $headerLen + $bodyLength));
+            $payload = substr($this->buffer, $offset, $length);
+            $offset += $length;
             $this->inputWrite($payload);
-            $offset += $payloadLen;
         }
 
         if ($offset < $len){
