@@ -30,31 +30,35 @@ class ForwardPacket extends StarGatePacket {
     public static function from(string $clientName, StarGatePacket $packet) : ForwardPacket {
         $forwardPacket = new ForwardPacket();
         $forwardPacket->setClientName($clientName);
-        $forwardPacket->setForwardPacketId($packet->getPacketId());
 
+        $unknownPacket = new UnknownPacket();
+        $unknownPacket->setPacketId($packet->getPacketId());
         $packet->reset();
         $packet->encodePayload();
-        $forwardPacket->setPayload($packet->getBuffer());
+        $unknownPacket->setPayload($packet->getBuffer());
+
+        $forwardPacket->setPacket($unknownPacket);
         return $forwardPacket;
     }
 
     /** @var string */
     private $clientName;
-    /** @var int */
-    private $forwardPacketId;
-    /** @var string */
-    private $payload;
+    /** @var UnknownPacket */
+    public $packet;
 
     public function encodePayload() : void {
         PacketHelper::writeString($this, $this->clientName);
-        $this->putByte($this->forwardPacketId);
-        PacketHelper::writeByteArray($this, $this->payload);
+        $this->putByte($this->packet->getPacketId());
+        PacketHelper::writeByteArray($this, $this->packet->getPayload());
     }
 
     public function decodePayload() : void {
         $this->clientName = PacketHelper::readString($this);
-        $this->forwardPacketId = PacketHelper::readInt($this);
-        $this->payload = PacketHelper::readByteArray($this);
+
+        $packet = new UnknownPacket();
+        $packet->setPacketId($this->getByte());
+        $packet->setPayload(PacketHelper::readByteArray($this));
+        $this->packet = $packet;
     }
 
     /**
@@ -87,30 +91,16 @@ class ForwardPacket extends StarGatePacket {
     }
 
     /**
-     * @param int $forwardPacketId
+     * @param UnknownPacket $packet
      */
-    public function setForwardPacketId(int $forwardPacketId) : void {
-        $this->forwardPacketId = $forwardPacketId;
+    public function setPacket(UnknownPacket $packet) : void {
+        $this->packet = $packet;
     }
 
     /**
-     * @return int
+     * @return UnknownPacket
      */
-    public function getForwardPacketId() : int {
-        return $this->forwardPacketId;
-    }
-
-    /**
-     * @param string $payload
-     */
-    public function setPayload(string $payload) : void {
-        $this->payload = $payload;
-    }
-
-    /**
-     * @return string
-     */
-    public function getPayload() : string {
-        return $this->payload;
+    public function getPacket() : UnknownPacket {
+        return $this->packet;
     }
 }
