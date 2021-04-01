@@ -20,7 +20,7 @@ use alemiz\sga\protocol\PingPacket;
 use alemiz\sga\protocol\PongPacket;
 use alemiz\sga\protocol\ReconnectPacket;
 
-class ConnectedPacketHandler extends SessionHandler {
+class ConnectedPacketHandler extends CommonSessionHandler {
 
     /**
      * @param PingPacket $packet

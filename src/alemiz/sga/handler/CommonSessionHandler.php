@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright 2020 Alemiz
+ * Copyright 2021 Alemiz
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
@@ -16,20 +16,26 @@
 
 namespace alemiz\sga\handler;
 
-use alemiz\sga\client\StarGateConnection;
-use alemiz\sga\protocol\ServerHandshakePacket;
+use alemiz\sga\protocol\DisconnectPacket;
+use alemiz\sga\protocol\UnknownPacket;
 
-class HandshakePacketHandler extends CommonSessionHandler {
+class CommonSessionHandler extends SessionHandler {
 
     /**
-     * @param ServerHandshakePacket $packet
+     * @param DisconnectPacket $packet
      * @return bool
      */
-    public function handleServerHandshake(ServerHandshakePacket $packet) : bool {
-        $this->session->getClient()->onSessionAuthenticated();
-        $this->session->getConnection()->setState(StarGateConnection::STATE_AUTHENTICATED);
-        $this->session->setPacketHandler(new ConnectedPacketHandler($this->session));
+    public function handleDisconnect(DisconnectPacket $packet) : bool {
+        $this->session->onDisconnect($packet->getReason());
         return true;
     }
 
+    /**
+     * @param UnknownPacket $packet
+     * @return bool
+     */
+    public function handleUnknown(UnknownPacket $packet): bool {
+        $this->session->getLogger()->info("Received UnknownPacket packetId=".$packet->getPacketId()." payload=".$packet->getPayload());
+        return true;
+    }
 }

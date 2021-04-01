@@ -123,7 +123,7 @@ class ClientSession {
         }
 
         $customHandler = $this->client->getCustomHandler();
-        if ($customHandler !== null){
+        if (!$handled && $customHandler !== null){
             try {
                 if ($packet->handle($customHandler)){
                     $handled = true;
