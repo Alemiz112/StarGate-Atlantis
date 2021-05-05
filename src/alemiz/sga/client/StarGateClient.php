@@ -34,27 +34,27 @@ use pocketmine\Server;
 class StarGateClient extends Task {
 
     /** @var StarGateAtlantis */
-    private $loader;
+    private StarGateAtlantis $loader;
     /** @var Server */
-    private $server;
+    private Server $server;
     /** @var PluginLogger */
     private $logger;
 
     /** @var ProtocolCodec */
-    private $protocolCodec;
+    private ProtocolCodec $protocolCodec;
 
     /** @var HandshakeData */
-    private $handshakeData;
+    private HandshakeData $handshakeData;
     /** @var string */
-    protected $address;
+    protected string $address;
     /** @var int */
-    protected $port;
+    protected int $port;
 
     /** @var ClientSession|null */
-    private $session;
+    private ?ClientSession $session = null;
 
     /** @var SessionHandler|null */
-    private $customHandler;
+    private ?SessionHandler $customHandler = null;
 
     /**
      * StarGateClient constructor.
@@ -82,10 +82,8 @@ class StarGateClient extends Task {
         $this->session = new ClientSession($this, $this->address, $this->port);
     }
 
-    /**
-     * @param int $currentTick
-     */
-    public function onRun(int $currentTick) : void {
+
+    public function onRun() : void {
         if ($this->session !== null && $this->isConnected()){
             $this->session->onTick();
         }

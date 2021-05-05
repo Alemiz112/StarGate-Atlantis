@@ -24,9 +24,9 @@ use alemiz\sga\utils\LogLevel;
 class PongPacket extends StarGatePacket {
 
     /** @var int */
-    private $pingTime;
+    private int $pingTime;
     /** @var int */
-    private $pongTime;
+    private int $pongTime;
 
     public function encodePayload() : void {
         PacketHelper::writeLong($this, $this->pingTime);

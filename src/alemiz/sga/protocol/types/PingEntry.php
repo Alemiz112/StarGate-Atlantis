@@ -21,9 +21,9 @@ use alemiz\sga\utils\StarGateFuture;
 class PingEntry {
 
     /** @var StarGateFuture */
-    private $future;
+    private StarGateFuture $future;
     /** @var int */
-    private $timeout;
+    private int $timeout;
 
     /**
      * PingEntry constructor.

@@ -24,7 +24,6 @@ use alemiz\sga\protocol\PingPacket;
 use alemiz\sga\protocol\PongPacket;
 use alemiz\sga\protocol\StarGatePacket;
 use alemiz\sga\protocol\types\PingEntry;
-use alemiz\sga\utils\LogLevel;
 use alemiz\sga\utils\PacketResponse;
 use alemiz\sga\utils\StarGateException;
 use alemiz\sga\utils\StarGateFuture;
@@ -32,30 +31,29 @@ use Exception;
 use pocketmine\plugin\PluginLogger;
 use function get_class;
 use function microtime;
-use function var_dump;
 
 class ClientSession {
 
     /** @var StarGateClient */
-    private $client;
+    private StarGateClient $client;
     /** @var StarGateConnection */
-    private $connection;
+    private StarGateConnection $connection;
 
     /** @var int */
-    private $responseCounter = 0;
+    private int $responseCounter = 0;
     /** @var PacketResponse[] */
-    private $pendingResponses = [];
+    private array $pendingResponses = [];
 
     /** @var StarGatePacketHandler|null */
     private $packetHandler;
 
     /** @var PingEntry|null */
-    private $pingEntry;
+    private ?PingEntry $pingEntry = null;
 
     /** @var int */
-    private $logInputLevel = 0;
+    private int $logInputLevel = 0;
     /** @var int */
-    private $logOutputLevel = 0;
+    private int $logOutputLevel = 0;
 
     /**
      * ClientSession constructor.
@@ -190,6 +188,7 @@ class ClientSession {
     /**
      * @param int $timeout
      * @return StarGateFuture
+     * @noinspection PhpExpressionResultUnusedInspection
      */
     public function pingServer(int $timeout) : StarGateFuture {
         if ($this->pingEntry !== null){

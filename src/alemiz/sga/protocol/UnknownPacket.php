@@ -21,9 +21,9 @@ use alemiz\sga\codec\StarGatePacketHandler;
 class UnknownPacket extends StarGatePacket {
 
     /** @var int */
-    private $packetId;
+    private int $packetId;
     /** @var string */
-    private $payload;
+    private string $payload;
 
     public function encodePayload() : void {
         $this->put($this->payload);

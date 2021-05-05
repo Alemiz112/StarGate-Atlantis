@@ -19,7 +19,7 @@ namespace alemiz\sga\client;
 use alemiz\sga\codec\ProtocolCodec;
 use alemiz\sga\protocol\types\HandshakeData;
 use alemiz\sga\utils\StarGateException;
-use pocketmine\Thread;
+use pocketmine\thread\Thread;
 use pocketmine\utils\Binary;
 use Threaded;
 use ThreadedLogger;
@@ -38,30 +38,30 @@ class StarGateConnection extends Thread {
     public const STATE_SHUTDOWN = 5;
 
     /** @var ThreadedLogger */
-    private $logger;
+    private ThreadedLogger $logger;
     /** @var StarGateSocket */
-    private $starGateSocket;
+    private StarGateSocket $starGateSocket;
 
     /** @var resource */
     public $socket;
 
     /** @var string */
-    private $address;
+    private string $address;
     /** @var int */
-    private $port;
+    private int $port;
     /** @var HandshakeData */
-    private $handshakeData;
+    private HandshakeData $handshakeData;
 
     /** @var Threaded */
-    private $input;
+    private Threaded $input;
     /** @var Threaded */
-    private $output;
+    private Threaded $output;
 
     /** @var string */
-    private $buffer = "";
+    private string $buffer = "";
 
     /** @var int */
-    private $state = self::STATE_DISCONNECTED;
+    private int $state = self::STATE_DISCONNECTED;
 
     /**
      * StarGateConnection constructor.
@@ -82,7 +82,7 @@ class StarGateConnection extends Thread {
         $this->start(PTHREADS_INHERIT_NONE);
     }
 
-    public function run() : void {
+    public function onRun() : void {
         $this->registerClassLoader();
         gc_enable();
         error_reporting(-1);

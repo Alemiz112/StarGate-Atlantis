@@ -25,15 +25,15 @@ use const AF_INET;
 use const SOCK_STREAM;
 use const SOL_TCP;
 
-class StarGateSocket{
+class StarGateSocket {
 
     /** @var StarGateConnection */
-    private $conn;
+    private StarGateConnection $conn;
 
     /** @var string */
-    private $address;
+    private string $address;
     /** @var int */
-    private $port;
+    private int $port;
     /** @var string */
 
     /**

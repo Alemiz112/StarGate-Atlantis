@@ -22,7 +22,7 @@ use alemiz\sga\protocol\ServerInfoRequestPacket;
 use alemiz\sga\protocol\ServerTransferPacket;
 use alemiz\sga\protocol\types\HandshakeData;
 use alemiz\sga\utils\PacketResponse;
-use pocketmine\Player;
+use pocketmine\player\Player;
 use pocketmine\plugin\PluginBase;
 
 class StarGateAtlantis extends PluginBase{
@@ -30,22 +30,22 @@ class StarGateAtlantis extends PluginBase{
     public const STARGATE_VERSION = 2;
 
     /** @var StarGateAtlantis */
-    private static $instance;
+    private static StarGateAtlantis $instance;
 
     /** @var StarGateClient[] */
-    protected $clients = [];
+    protected array $clients = [];
 
     /** @var int */
-    private $tickInterval;
+    private int $tickInterval;
 
     /** @var string */
-    private $defaultClient;
+    private string $defaultClient;
 
     /** @var int */
-    private $logLevel;
+    private int $logLevel;
 
     /** @var bool */
-    private $autoStart;
+    private bool $autoStart;
 
     public function onEnable() : void {
         self::$instance = $this;

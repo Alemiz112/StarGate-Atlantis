@@ -24,10 +24,10 @@ use pocketmine\event\Event;
 abstract class ClientEvent extends Event {
 
     /** @var StarGateAtlantis */
-    private $plugin;
+    private StarGateAtlantis $plugin;
 
     /** @var StarGateClient */
-    private $client;
+    private StarGateClient $client;
 
     /**
      * ClientEvent constructor.
