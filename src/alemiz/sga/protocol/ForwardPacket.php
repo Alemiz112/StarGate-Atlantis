@@ -33,7 +33,7 @@ class ForwardPacket extends StarGatePacket {
 
         $unknownPacket = new UnknownPacket();
         $unknownPacket->setPacketId($packet->getPacketId());
-        $packet->reset();
+        $packet->rewind();
         $packet->encodePayload();
         $unknownPacket->setPayload($packet->getBuffer());
 
@@ -42,9 +42,9 @@ class ForwardPacket extends StarGatePacket {
     }
 
     /** @var string */
-    private $clientName;
+    private string $clientName;
     /** @var UnknownPacket */
-    public $packet;
+    public UnknownPacket $packet;
 
     public function encodePayload() : void {
         PacketHelper::writeString($this, $this->clientName);

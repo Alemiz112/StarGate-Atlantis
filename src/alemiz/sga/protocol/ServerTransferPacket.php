@@ -23,9 +23,9 @@ use alemiz\sga\protocol\types\PacketHelper;
 class ServerTransferPacket extends StarGatePacket {
 
     /** @var string */
-    private $playerName;
+    private string $playerName;
     /** @var string */
-    private $targetServer;
+    private string $targetServer;
 
     public function encodePayload() : void {
         PacketHelper::writeString($this, $this->playerName);

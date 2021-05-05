@@ -26,7 +26,7 @@ class DisconnectPacket extends StarGatePacket {
     public const CLIENT_SHUTDOWN = "StarGate client shutdown!";
 
     /** @var string */
-    private $reason;
+    private string $reason;
 
     public function encodePayload() : void {
         PacketHelper::writeString($this, $this->reason);

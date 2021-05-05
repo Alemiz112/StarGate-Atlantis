@@ -17,11 +17,14 @@
 namespace alemiz\sga\events;
 
 use pocketmine\event\Cancellable;
+use pocketmine\event\CancellableTrait;
 
 class ClientAuthenticatedEvent extends ClientEvent implements Cancellable {
 
+    use CancellableTrait;
+
     /** @var string */
-    private $cancelMessage = "Authentication was canceled!";
+    private string $cancelMessage = "Authentication was canceled!";
 
     /**
      * @param string $cancelMessage

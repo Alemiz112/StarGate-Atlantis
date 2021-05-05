@@ -22,7 +22,7 @@ use alemiz\sga\codec\StarGatePacketHandler;
 class SessionHandler extends StarGatePacketHandler {
 
     /** @var ClientSession */
-    protected $session;
+    protected ClientSession $session;
 
     public function __construct(ClientSession $session) {
         $this->session = $session;

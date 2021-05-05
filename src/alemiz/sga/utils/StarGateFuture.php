@@ -27,7 +27,7 @@ class StarGateFuture {
      * closure(result, exception)
      * @var Closure[]
      */
-    private $closures = [];
+    private array $closures = [];
 
     /**
      * @param mixed $response

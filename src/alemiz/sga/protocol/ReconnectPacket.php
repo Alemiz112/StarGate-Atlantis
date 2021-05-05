@@ -23,7 +23,7 @@ use alemiz\sga\protocol\types\PacketHelper;
 class ReconnectPacket extends StarGatePacket {
 
     /** @var string */
-    private $reason;
+    private string $reason;
 
     public function encodePayload() : void {
         PacketHelper::writeString($this, $this->reason);

@@ -23,7 +23,7 @@ use pocketmine\utils\BinaryStream;
 abstract class StarGatePacket extends BinaryStream {
 
     /** @var int */
-    private $responseId;
+    private int $responseId;
 
     abstract public function encodePayload() : void;
     abstract public function decodePayload() : void;
@@ -34,6 +34,13 @@ abstract class StarGatePacket extends BinaryStream {
      */
     public function handle(StarGatePacketHandler $handler) : bool {
         return false;
+    }
+
+    /**
+     * @param string $buffer
+     */
+    public function setBuffer(string $buffer) {
+        $this->buffer = $buffer;
     }
 
     /**

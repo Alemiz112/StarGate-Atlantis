@@ -101,7 +101,7 @@ class ProtocolCodec {
             $buffer .= Binary::writeInt($packet->getResponseId());
         }
 
-        $packet->reset();
+        $packet->rewind();
         $packet->encodePayload();
         $buffer .= $packet->getBuffer();
 

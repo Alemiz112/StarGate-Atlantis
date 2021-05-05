@@ -19,23 +19,21 @@ namespace alemiz\sga\protocol;
 use alemiz\sga\codec\StarGatePacketHandler;
 use alemiz\sga\codec\StarGatePackets;
 use alemiz\sga\protocol\types\PacketHelper;
-use function explode;
-use function implode;
 
 class ServerInfoResponsePacket extends StarGatePacket {
 
     /** @var string */
-    private $serverName;
+    private string $serverName;
     /** @var bool */
-    private $selfInfo;
+    private bool $selfInfo;
     /** @var int */
-    private $onlinePlayers;
+    private int $onlinePlayers;
     /** @var int */
-    private $maxPlayers;
+    private int $maxPlayers;
     /** @var string[] */
-    private $playerList;
+    private array $playerList;
     /** @var string[] */
-    private $serverList;
+    private array $serverList;
 
     public function encodePayload() : void {
         PacketHelper::writeString($this, $this->serverName);

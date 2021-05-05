@@ -24,7 +24,7 @@ use alemiz\sga\utils\LogLevel;
 class ServerHandshakePacket extends StarGatePacket {
 
     /** @var bool */
-    private $success = true;
+    private bool $success = true;
 
 
     public function encodePayload() : void {

@@ -24,7 +24,7 @@ use alemiz\sga\utils\LogLevel;
 class HandshakePacket extends StarGatePacket {
 
     /** @var HandshakeData */
-    private $handshakeData;
+    private HandshakeData $handshakeData;
 
     public function encodePayload() : void {
         HandshakeData::encodeData($this, $this->handshakeData);
