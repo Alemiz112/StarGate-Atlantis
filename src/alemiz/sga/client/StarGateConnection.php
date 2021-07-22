@@ -83,7 +83,7 @@ class StarGateConnection extends Thread {
     }
 
     public function onRun() : void {
-        $this->registerClassLoader();
+        $this->registerClassLoaders();
         gc_enable();
         error_reporting(-1);
         ini_set('display_errors', '1');
