@@ -2,6 +2,7 @@
 branches:
 - master
 - atlantis-netty
+- pmmp-4
 projects:
   StarGate-Atlantis:
     path: ""
