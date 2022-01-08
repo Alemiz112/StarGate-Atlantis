@@ -37,7 +37,7 @@ class ProtocolCodec {
     public const STARGATE_MAGIC = 0xa20;
 
     /** @var StarGatePacket[] */
-    private $packetPool = [];
+    private array $packetPool = [];
 
     /**
      * ProtocolCodec constructor.
@@ -129,7 +129,7 @@ class ProtocolCodec {
             $offset += 4;
         }
 
-        $packet->setBuffer(substr($encoded, $offset));
+		$packet->setBuffer(substr($encoded, $offset));
         $packet->decodePayload();
         return $packet;
     }

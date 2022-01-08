@@ -47,13 +47,13 @@ class HandshakeData {
     }
 
     /** @var string  */
-    private $clientName;
+    private string $clientName;
     /** @var string  */
-    private $password;
+    private string $password;
     /** @var int */
-    private $software;
+    private int $software;
     /** @var int */
-    private $protocolVersion;
+    private int $protocolVersion;
 
     /**
      * HandshakeData constructor.

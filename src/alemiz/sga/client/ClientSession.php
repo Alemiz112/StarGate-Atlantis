@@ -45,7 +45,7 @@ class ClientSession {
     private array $pendingResponses = [];
 
     /** @var StarGatePacketHandler|null */
-    private $packetHandler;
+    private ?StarGatePacketHandler $packetHandler;
 
     /** @var PingEntry|null */
     private ?PingEntry $pingEntry = null;
@@ -66,7 +66,7 @@ class ClientSession {
         $server = $client->getServer();
         $this->packetHandler = new HandshakePacketHandler($this);
         $this->connection = new StarGateConnection($server->getLogger(), $address, $port, $client->getHandshakeData());
-    }
+	}
 
     public function onConnect() : void {
         $packet = new HandshakePacket();
@@ -188,12 +188,9 @@ class ClientSession {
     /**
      * @param int $timeout
      * @return StarGateFuture
-     * @noinspection PhpExpressionResultUnusedInspection
      */
     public function pingServer(int $timeout) : StarGateFuture {
-        if ($this->pingEntry !== null){
-            $this->pingEntry->getFuture();
-        }
+	    $this->pingEntry?->getFuture();
 
         $now = (int) microtime(true) * 1000;
         $entry = new PingEntry(new StarGateFuture(), $now + $timeout);

@@ -20,5 +20,5 @@ use pocketmine\event\Cancellable;
 use pocketmine\event\CancellableTrait;
 
 class ClientCreationEvent extends ClientEvent implements Cancellable {
-    use CancellableTrait;
+	use CancellableTrait;
 }

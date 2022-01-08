@@ -25,7 +25,7 @@ use const AF_INET;
 use const SOCK_STREAM;
 use const SOL_TCP;
 
-class StarGateSocket {
+class StarGateSocket{
 
     /** @var StarGateConnection */
     private StarGateConnection $conn;

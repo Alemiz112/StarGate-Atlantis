@@ -79,11 +79,10 @@ class StarGateConnection extends Thread {
 
         $this->input = new Threaded();
         $this->output = new Threaded();
-        $this->start(PTHREADS_INHERIT_NONE);
+        $this->start();
     }
 
-    public function onRun() : void {
-        $this->registerClassLoaders();
+	public function onRun() : void {
         gc_enable();
         error_reporting(-1);
         ini_set('display_errors', '1');

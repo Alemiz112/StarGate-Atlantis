@@ -47,7 +47,7 @@ class StarGateAtlantis extends PluginBase{
     /** @var bool */
     private bool $autoStart;
 
-    public function onEnable() : void {
+    protected function onEnable() : void {
         self::$instance = $this;
 		$this->tickInterval = $this->getConfig()->get("tickInterval");
 		$this->defaultClient = $this->getConfig()->get("defaultClient");
@@ -60,7 +60,7 @@ class StarGateAtlantis extends PluginBase{
         }
     }
 
-    public function onDisable() : void {
+	protected function onDisable() : void {
         foreach ($this->clients as $client){
             $client->shutdown();
         }

@@ -38,7 +38,7 @@ class StarGateClient extends Task {
     /** @var Server */
     private Server $server;
     /** @var PluginLogger */
-    private $logger;
+    private PluginLogger $logger;
 
     /** @var ProtocolCodec */
     private ProtocolCodec $protocolCodec;
@@ -82,9 +82,8 @@ class StarGateClient extends Task {
         $this->session = new ClientSession($this, $this->address, $this->port);
     }
 
-
     public function onRun() : void {
-        if ($this->session !== null && $this->isConnected()){
+        if ($this->isConnected()){
             $this->session->onTick();
         }
     }
@@ -93,18 +92,15 @@ class StarGateClient extends Task {
         $this->logger->info("§bClient ".$this->getClientName()." has connected!");
         $event = new ClientConnectedEvent($this, $this->loader);
         $event->call();
-
-        if ($this->session !== null){
-            $this->session->setLogInputLevel($this->loader->getLogLevel());
-            $this->session->setLogOutputLevel($this->loader->getLogLevel());
-        }
+        $this->session?->setLogInputLevel($this->loader->getLogLevel());
+        $this->session?->setLogOutputLevel($this->loader->getLogLevel());
     }
 
     public function onSessionAuthenticated() : void {
         $event = new ClientAuthenticatedEvent($this, $this->loader);
         $event->call();
-        if ($this->session !== null && $event->isCancelled()){
-            $this->session->disconnect($event->getCancelMessage());
+        if ($event->isCancelled()){
+            $this->session?->disconnect($event->getCancelMessage());
         }
     }
 
@@ -117,9 +113,7 @@ class StarGateClient extends Task {
      * @param StarGatePacket $packet
      */
     public function sendPacket(StarGatePacket $packet) : void {
-        if ($this->session !== null){
-            $this->session->sendPacket($packet);
-        }
+	    $this->session?->sendPacket($packet);
     }
 
     /**
@@ -127,10 +121,7 @@ class StarGateClient extends Task {
      * @return PacketResponse|null
      */
     public function responsePacket(StarGatePacket $packet) : ?PacketResponse {
-        if ($this->session !== null){
-            return $this->session->responsePacket($packet);
-        }
-        return null;
+		return $this->session?->responsePacket($packet);
     }
 
     public function shutdown() : void {
@@ -138,23 +129,21 @@ class StarGateClient extends Task {
             return;
         }
 
-        if ($this->session !== null){
-            $this->session->disconnect(DisconnectPacket::CLIENT_SHUTDOWN);
-        }
+	    $this->session?->disconnect(DisconnectPacket::CLIENT_SHUTDOWN);
     }
 
     /**
      * @return bool
      */
     public function isConnected() : bool {
-        return $this->session !== null && $this->session->isConnected();
+        return $this->session?->isConnected() ?? false;
     }
 
     /**
      * @return bool
      */
     public function isAuthenticated() : bool {
-        return $this->session !== null && $this->session->isAuthenticated();
+        return $this->session?->isAuthenticated() ?? false;
     }
 
     /**

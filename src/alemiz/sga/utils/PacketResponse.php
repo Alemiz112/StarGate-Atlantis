@@ -16,6 +16,9 @@
 
 namespace alemiz\sga\utils;
 
+use alemiz\sga\protocol\StarGatePacket;
+use Closure;
+
 class PacketResponse extends StarGateFuture {
 
 }
