@@ -20,8 +20,7 @@ use pocketmine\event\Cancellable;
 use pocketmine\event\CancellableTrait;
 
 class ClientAuthenticatedEvent extends ClientEvent implements Cancellable {
-
-    use CancellableTrait;
+	use CancellableTrait;
 
     /** @var string */
     private string $cancelMessage = "Authentication was canceled!";

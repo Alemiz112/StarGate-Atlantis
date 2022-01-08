@@ -37,13 +37,6 @@ abstract class StarGatePacket extends BinaryStream {
     }
 
     /**
-     * @param string $buffer
-     */
-    public function setBuffer(string $buffer) {
-        $this->buffer = $buffer;
-    }
-
-    /**
      * @return int
      */
     abstract public function getPacketId() : int;

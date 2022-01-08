@@ -19,6 +19,8 @@ namespace alemiz\sga\protocol;
 use alemiz\sga\codec\StarGatePacketHandler;
 use alemiz\sga\codec\StarGatePackets;
 use alemiz\sga\protocol\types\PacketHelper;
+use function explode;
+use function implode;
 
 class ServerInfoResponsePacket extends StarGatePacket {
 

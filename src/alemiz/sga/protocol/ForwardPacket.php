@@ -42,9 +42,9 @@ class ForwardPacket extends StarGatePacket {
     }
 
     /** @var string */
-    private string $clientName;
+    private $clientName;
     /** @var UnknownPacket */
-    public UnknownPacket $packet;
+    public $packet;
 
     public function encodePayload() : void {
         PacketHelper::writeString($this, $this->clientName);
