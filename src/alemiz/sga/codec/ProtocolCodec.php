@@ -129,8 +129,7 @@ class ProtocolCodec {
             $offset += 4;
         }
 
-		$packet->put(substr($encoded, $offset));
-		$packet->setOffset(0);
+		$packet->setBuffer(substr($encoded, $offset));
         $packet->decodePayload();
         return $packet;
     }
