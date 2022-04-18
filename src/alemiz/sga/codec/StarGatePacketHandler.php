@@ -21,6 +21,8 @@ use alemiz\sga\protocol\DisconnectPacket;
 use alemiz\sga\protocol\ForwardPacket;
 use alemiz\sga\protocol\HandshakePacket;
 use alemiz\sga\protocol\PingPacket;
+use alemiz\sga\protocol\PlayerPingRequestPacket;
+use alemiz\sga\protocol\PlayerPingResponsePacket;
 use alemiz\sga\protocol\PongPacket;
 use alemiz\sga\protocol\ReconnectPacket;
 use alemiz\sga\protocol\ServerHandshakePacket;
@@ -116,6 +118,22 @@ abstract class StarGatePacketHandler {
      * @return bool
      */
     public function handleUnknown(UnknownPacket $packet) : bool {
+        return false;
+    }
+
+    /**
+     * @param PlayerPingRequestPacket $packet
+     * @return bool
+     */
+    public function handlePlayerPingRequest(PlayerPingRequestPacket $packet) : bool {
+        return false;
+    }
+
+    /**
+     * @param PlayerPingResponsePacket $packet
+     * @return bool
+     */
+    public function handlePlayerPingResponse(PlayerPingResponsePacket  $packet) : bool {
         return false;
     }
 }

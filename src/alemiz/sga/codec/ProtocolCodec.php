@@ -20,6 +20,8 @@ use alemiz\sga\protocol\DisconnectPacket;
 use alemiz\sga\protocol\ForwardPacket;
 use alemiz\sga\protocol\HandshakePacket;
 use alemiz\sga\protocol\PingPacket;
+use alemiz\sga\protocol\PlayerPingRequestPacket;
+use alemiz\sga\protocol\PlayerPingResponsePacket;
 use alemiz\sga\protocol\PongPacket;
 use alemiz\sga\protocol\ReconnectPacket;
 use alemiz\sga\protocol\ServerHandshakePacket;
@@ -53,6 +55,8 @@ class ProtocolCodec {
         $this->registerPacket(StarGatePackets::SERVER_INFO_REQUEST_PACKET, new ServerInfoRequestPacket());
         $this->registerPacket(StarGatePackets::SERVER_INFO_RESPONSE_PACKET, new ServerInfoResponsePacket());
         $this->registerPacket(StarGatePackets::SERVER_TRANSFER_PACKET, new ServerTransferPacket());
+        $this->registerPacket(StarGatePackets::PLAYER_PING_REQUEST_PACKET, new PlayerPingRequestPacket());
+        $this->registerPacket(StarGatePackets::PLAYER_PING_RESPONSE_PACKET, new PlayerPingResponsePacket());
     }
 
     /**

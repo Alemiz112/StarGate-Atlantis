@@ -25,7 +25,7 @@ use alemiz\sga\utils\PacketResponse;
 use pocketmine\player\Player;
 use pocketmine\plugin\PluginBase;
 
-class StarGateAtlantis extends PluginBase{
+class StarGateAtlantis extends PluginBase {
 
     public const STARGATE_VERSION = 2;
 
