@@ -110,8 +110,8 @@ class StarGateConnection extends Thread {
             $start = microtime(true);
             $this->onTick();
             $time = microtime(true);
-            if ($time - $start < 0.01) {
-                time_sleep_until($time + 0.01 - ($time - $start));
+            if (($diff = $time - $start) < 0.02) {
+                time_sleep_until($time + 0.025 - $diff);
             }
         }
         $this->onTick();
