@@ -2,3 +2,4 @@
 vendor/
 dependencies/
 pocketmine/
+/composer.phar
