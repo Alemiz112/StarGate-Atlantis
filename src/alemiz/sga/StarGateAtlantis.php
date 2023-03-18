@@ -24,14 +24,13 @@ use alemiz\sga\protocol\types\HandshakeData;
 use alemiz\sga\utils\PacketResponse;
 use pocketmine\player\Player;
 use pocketmine\plugin\PluginBase;
+use pocketmine\utils\SingletonTrait;
 
 class StarGateAtlantis extends PluginBase
 {
+    use SingletonTrait;
 
     public const STARGATE_VERSION = 2;
-
-    /** @var StarGateAtlantis */
-    private static StarGateAtlantis $instance;
 
     /** @var StarGateClient[] */
     protected array $clients = [];
@@ -47,14 +46,6 @@ class StarGateAtlantis extends PluginBase
 
     /** @var bool */
     private bool $autoStart;
-
-    /**
-     * @return StarGateAtlantis
-     */
-    public static function getInstance(): StarGateAtlantis
-    {
-        return self::$instance;
-    }
 
     /**
      * @return int
@@ -140,7 +131,7 @@ class StarGateAtlantis extends PluginBase
 
     protected function onEnable(): void
     {
-        self::$instance = $this;
+        self::setInstance($this);
         $this->tickInterval = $this->getConfig()->get("tickInterval");
         $this->defaultClient = $this->getConfig()->get("defaultClient");
         $this->logLevel = $this->getConfig()->get("logLevel");
