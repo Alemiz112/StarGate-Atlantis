@@ -20,66 +20,75 @@ use alemiz\sga\codec\StarGatePacketHandler;
 use alemiz\sga\utils\LogLevel;
 use pocketmine\utils\BinaryStream;
 
-abstract class StarGatePacket extends BinaryStream {
+abstract class StarGatePacket extends BinaryStream
+{
 
     /** @var int */
     private int $responseId;
 
-    abstract public function encodePayload() : void;
-    abstract public function decodePayload() : void;
+    abstract public function encodePayload(): void;
+
+    abstract public function decodePayload(): void;
 
     /**
      * @param StarGatePacketHandler $handler
      * @return bool
      */
-    public function handle(StarGatePacketHandler $handler) : bool {
+    public function handle(StarGatePacketHandler $handler): bool
+    {
         return false;
     }
 
     /**
      * @param string $buffer
      */
-    public function setBuffer(string $buffer) {
+    public function setBuffer(string $buffer)
+    {
         $this->buffer = $buffer;
     }
 
     /**
      * @return int
      */
-    abstract public function getPacketId() : int;
-
-    /**
-     * @param int $responseId
-     */
-    public function setResponseId(int $responseId) : void {
-        $this->responseId = $responseId;
-    }
+    abstract public function getPacketId(): int;
 
     /**
      * @return int
      */
-    public function getResponseId() : int {
+    public function getResponseId(): int
+    {
         return $this->responseId;
     }
 
     /**
+     * @param int $responseId
+     */
+    public function setResponseId(int $responseId): void
+    {
+        $this->responseId = $responseId;
+    }
+
+    /**
      * @return bool
      */
-    public function sendsResponse() : bool {
+    public function sendsResponse(): bool
+    {
         return false;
     }
 
     /**
      * @return bool
      */
-    public function isResponse() : bool {
+    public function isResponse(): bool
+    {
         return false;
     }
 
     /**
      * @return int
      */
-    public function getLogLevel() : int {
+    public function getLogLevel(): int
+    {
         return LogLevel::LEVEL_FILTERED;
     }
 }

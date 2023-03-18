@@ -21,16 +21,19 @@ use alemiz\sga\codec\StarGatePackets;
 use alemiz\sga\protocol\types\HandshakeData;
 use alemiz\sga\utils\LogLevel;
 
-class HandshakePacket extends StarGatePacket {
+class HandshakePacket extends StarGatePacket
+{
 
     /** @var HandshakeData */
     private HandshakeData $handshakeData;
 
-    public function encodePayload() : void {
+    public function encodePayload(): void
+    {
         HandshakeData::encodeData($this, $this->handshakeData);
     }
 
-    public function decodePayload() : void {
+    public function decodePayload(): void
+    {
         $this->handshakeData = HandshakeData::decodeData($this);
     }
 
@@ -38,32 +41,37 @@ class HandshakePacket extends StarGatePacket {
      * @param StarGatePacketHandler $handler
      * @return bool
      */
-    public function handle(StarGatePacketHandler $handler) : bool {
+    public function handle(StarGatePacketHandler $handler): bool
+    {
         return $handler->handleHandshake($this);
     }
 
-    public function getPacketId() : int {
+    public function getPacketId(): int
+    {
         return StarGatePackets::HANDSHAKE_PACKET;
-    }
-
-    /**
-     * @param HandshakeData $handshakeData
-     */
-    public function setHandshakeData(HandshakeData $handshakeData) : void {
-        $this->handshakeData = $handshakeData;
     }
 
     /**
      * @return HandshakeData
      */
-    public function getHandshakeData() : HandshakeData{
+    public function getHandshakeData(): HandshakeData
+    {
         return $this->handshakeData;
+    }
+
+    /**
+     * @param HandshakeData $handshakeData
+     */
+    public function setHandshakeData(HandshakeData $handshakeData): void
+    {
+        $this->handshakeData = $handshakeData;
     }
 
     /**
      * @return int
      */
-    public function getLogLevel() : int {
+    public function getLogLevel(): int
+    {
         return LogLevel::LEVEL_ALL;
     }
 }

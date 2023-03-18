@@ -34,17 +34,19 @@ use pocketmine\utils\Binary;
 use function strlen;
 use function substr;
 
-class ProtocolCodec {
+class ProtocolCodec
+{
 
     public const STARGATE_MAGIC = 0xa20;
 
     /** @var StarGatePacket[] */
-    private $packetPool = [];
+    private array $packetPool = [];
 
     /**
      * ProtocolCodec constructor.
      */
-    public function __construct() {
+    public function __construct()
+    {
         $this->registerPacket(StarGatePackets::HANDSHAKE_PACKET, new HandshakePacket());
         $this->registerPacket(StarGatePackets::SERVER_HANDSHAKE_PACKET, new ServerHandshakePacket());
         $this->registerPacket(StarGatePackets::DISCONNECT_PACKET, new DisconnectPacket());
@@ -64,8 +66,9 @@ class ProtocolCodec {
      * @param StarGatePacket $packet
      * @return bool
      */
-    public function registerPacket(int $packetId, StarGatePacket $packet) : bool {
-        if (isset($this->packetPool[$packetId])){
+    public function registerPacket(int $packetId, StarGatePacket $packet): bool
+    {
+        if (isset($this->packetPool[$packetId])) {
             return false;
         }
         $this->packetPool[$packetId] = clone $packet;
@@ -76,18 +79,8 @@ class ProtocolCodec {
      * @param int $packetId
      * @return StarGatePacket|null
      */
-    public function getPacketInstance(int $packetId) : ?StarGatePacket {
-        if (isset($this->packetPool[$packetId])){
-            return clone $this->packetPool[$packetId];
-        }
-        return null;
-    }
-
-    /**
-     * @param int $packetId
-     * @return StarGatePacket|null
-     */
-    public function unregisterPacket(int $packetId) : ?StarGatePacket {
+    public function unregisterPacket(int $packetId): ?StarGatePacket
+    {
         $oldPacket = $this->packetPool[$packetId] ?? null;
         unset($this->packetPool[$packetId]);
         return $oldPacket;
@@ -97,11 +90,12 @@ class ProtocolCodec {
      * @param StarGatePacket $packet
      * @return string
      */
-    public function tryEncode(StarGatePacket $packet) : string {
+    public function tryEncode(StarGatePacket $packet): string
+    {
         $buffer = Binary::writeByte($packet->getPacketId());
         $supportsResponse = $packet->isResponse() || $packet->sendsResponse();
         $buffer .= Binary::writeBool($supportsResponse);
-        if ($supportsResponse){
+        if ($supportsResponse) {
             $buffer .= Binary::writeInt($packet->getResponseId());
         }
 
@@ -118,17 +112,18 @@ class ProtocolCodec {
      * @param string $encoded
      * @return StarGatePacket|null
      */
-    public function tryDecode(string $encoded) : ?StarGatePacket {
+    public function tryDecode(string $encoded): ?StarGatePacket
+    {
         $packetId = Binary::readByte($encoded);
         $offset = 1;
 
         $packet = $this->getPacketInstance($packetId);
-        if ($packet === null){
+        if ($packet === null) {
             $packet = new UnknownPacket();
             $packet->setPacketId($packetId);
         }
 
-        if (Binary::readBool($encoded[$offset++])){
+        if (Binary::readBool($encoded[$offset++])) {
             $packet->setResponseId(Binary::readInt(substr($encoded, $offset, 4)));
             $offset += 4;
         }
@@ -136,6 +131,18 @@ class ProtocolCodec {
         $packet->setBuffer(substr($encoded, $offset));
         $packet->decodePayload();
         return $packet;
+    }
+
+    /**
+     * @param int $packetId
+     * @return StarGatePacket|null
+     */
+    public function getPacketInstance(int $packetId): ?StarGatePacket
+    {
+        if (isset($this->packetPool[$packetId])) {
+            return clone $this->packetPool[$packetId];
+        }
+        return null;
     }
 
 }

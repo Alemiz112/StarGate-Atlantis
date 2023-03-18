@@ -16,6 +16,7 @@
 
 namespace alemiz\sga\utils;
 
-class PacketResponse extends StarGateFuture {
+class PacketResponse extends StarGateFuture
+{
 
 }

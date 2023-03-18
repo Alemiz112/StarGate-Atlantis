@@ -16,7 +16,8 @@
 
 namespace alemiz\sga\utils;
 
-class LogLevel {
+class LogLevel
+{
 
     public const LEVEL_DISABLED = 0;
     public const LEVEL_FILTERED = 1;

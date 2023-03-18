@@ -21,16 +21,19 @@ use alemiz\sga\codec\StarGatePackets;
 use alemiz\sga\protocol\types\PacketHelper;
 use alemiz\sga\utils\LogLevel;
 
-class PingPacket extends StarGatePacket {
+class PingPacket extends StarGatePacket
+{
 
     /** @var int */
     private int $pingTime;
 
-    public function encodePayload() : void {
+    public function encodePayload(): void
+    {
         PacketHelper::writeLong($this, $this->pingTime);
     }
 
-    public function decodePayload() : void {
+    public function decodePayload(): void
+    {
         $this->pingTime = PacketHelper::readLong($this);
     }
 
@@ -38,32 +41,37 @@ class PingPacket extends StarGatePacket {
      * @param StarGatePacketHandler $handler
      * @return bool
      */
-    public function handle(StarGatePacketHandler $handler) : bool {
+    public function handle(StarGatePacketHandler $handler): bool
+    {
         return $handler->handlePing($this);
     }
 
-    public function getPacketId() : int {
+    public function getPacketId(): int
+    {
         return StarGatePackets::PING_PACKET;
+    }
+
+    /**
+     * @return int
+     */
+    public function getPingTime(): int
+    {
+        return $this->pingTime;
     }
 
     /**
      * @param int $pingTime
      */
-    public function setPingTime(int $pingTime) : void {
+    public function setPingTime(int $pingTime): void
+    {
         $this->pingTime = $pingTime;
     }
 
     /**
      * @return int
      */
-    public function getPingTime() : int {
-        return $this->pingTime;
-    }
-
-    /**
-     * @return int
-     */
-    public function getLogLevel() : int {
+    public function getLogLevel(): int
+    {
         return LogLevel::LEVEL_ALL;
     }
 

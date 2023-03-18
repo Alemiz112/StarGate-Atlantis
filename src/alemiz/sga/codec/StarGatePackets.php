@@ -16,7 +16,8 @@
 
 namespace alemiz\sga\codec;
 
-interface StarGatePackets {
+interface StarGatePackets
+{
 
     public const HANDSHAKE_PACKET = 0x01;
     public const SERVER_HANDSHAKE_PACKET = 0x02;

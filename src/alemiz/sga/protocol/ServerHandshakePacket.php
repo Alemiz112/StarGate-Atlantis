@@ -21,17 +21,20 @@ use alemiz\sga\codec\StarGatePackets;
 use alemiz\sga\protocol\types\PacketHelper;
 use alemiz\sga\utils\LogLevel;
 
-class ServerHandshakePacket extends StarGatePacket {
+class ServerHandshakePacket extends StarGatePacket
+{
 
     /** @var bool */
     private bool $success = true;
 
 
-    public function encodePayload() : void {
+    public function encodePayload(): void
+    {
         PacketHelper::writeBoolean($this, $this->success);
     }
 
-    public function decodePayload() : void {
+    public function decodePayload(): void
+    {
         $this->success = PacketHelper::readBoolean($this);
     }
 
@@ -39,18 +42,21 @@ class ServerHandshakePacket extends StarGatePacket {
      * @param StarGatePacketHandler $handler
      * @return bool
      */
-    public function handle(StarGatePacketHandler $handler) : bool {
+    public function handle(StarGatePacketHandler $handler): bool
+    {
         return $handler->handleServerHandshake($this);
     }
 
-    public function getPacketId() : int {
+    public function getPacketId(): int
+    {
         return StarGatePackets::SERVER_HANDSHAKE_PACKET;
     }
 
     /**
      * @return int
      */
-    public function getLogLevel() : int {
+    public function getLogLevel(): int
+    {
         return LogLevel::LEVEL_ALL;
     }
 }

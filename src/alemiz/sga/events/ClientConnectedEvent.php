@@ -16,6 +16,7 @@
 
 namespace alemiz\sga\events;
 
-class ClientConnectedEvent extends ClientEvent {
+class ClientConnectedEvent extends ClientEvent
+{
 
 }

@@ -19,13 +19,15 @@ namespace alemiz\sga\handler;
 use alemiz\sga\protocol\DisconnectPacket;
 use alemiz\sga\protocol\UnknownPacket;
 
-class CommonSessionHandler extends SessionHandler {
+class CommonSessionHandler extends SessionHandler
+{
 
     /**
      * @param DisconnectPacket $packet
      * @return bool
      */
-    public function handleDisconnect(DisconnectPacket $packet) : bool {
+    public function handleDisconnect(DisconnectPacket $packet): bool
+    {
         $this->session->onDisconnect($packet->getReason());
         return true;
     }
@@ -34,8 +36,9 @@ class CommonSessionHandler extends SessionHandler {
      * @param UnknownPacket $packet
      * @return bool
      */
-    public function handleUnknown(UnknownPacket $packet): bool {
-        $this->session->getLogger()->info("Received UnknownPacket packetId=".$packet->getPacketId()." payload=".$packet->getPayload());
+    public function handleUnknown(UnknownPacket $packet): bool
+    {
+        $this->session->getLogger()->info("Received UnknownPacket packetId=" . $packet->getPacketId() . " payload=" . $packet->getPayload());
         return true;
     }
 }

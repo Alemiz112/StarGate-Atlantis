@@ -20,14 +20,21 @@ use alemiz\sga\codec\StarGatePacketHandler;
 use alemiz\sga\codec\StarGatePackets;
 use alemiz\sga\protocol\types\PacketHelper;
 
-class ForwardPacket extends StarGatePacket {
+class ForwardPacket extends StarGatePacket
+{
+
+    /** @var UnknownPacket */
+    public UnknownPacket $packet;
+    /** @var string */
+    private string $clientName;
 
     /**
      * @param string $clientName
      * @param StarGatePacket $packet
      * @return ForwardPacket
      */
-    public static function from(string $clientName, StarGatePacket $packet) : ForwardPacket {
+    public static function from(string $clientName, StarGatePacket $packet): ForwardPacket
+    {
         $forwardPacket = new ForwardPacket();
         $forwardPacket->setClientName($clientName);
 
@@ -41,18 +48,23 @@ class ForwardPacket extends StarGatePacket {
         return $forwardPacket;
     }
 
-    /** @var string */
-    private string $clientName;
-    /** @var UnknownPacket */
-    public UnknownPacket $packet;
+    /**
+     * @return int
+     */
+    public function getPacketId(): int
+    {
+        return StarGatePackets::FORWARD_PACKET;
+    }
 
-    public function encodePayload() : void {
+    public function encodePayload(): void
+    {
         PacketHelper::writeString($this, $this->clientName);
         $this->putByte($this->packet->getPacketId());
         PacketHelper::writeByteArray($this, $this->packet->getPayload());
     }
 
-    public function decodePayload() : void {
+    public function decodePayload(): void
+    {
         $this->clientName = PacketHelper::readString($this);
 
         $packet = new UnknownPacket();
@@ -62,45 +74,43 @@ class ForwardPacket extends StarGatePacket {
     }
 
     /**
-     * @return int
-     */
-    public function getPacketId() : int {
-        return StarGatePackets::FORWARD_PACKET;
-    }
-
-    /**
      * @param StarGatePacketHandler $handler
      * @return bool
      */
-    public function handle(StarGatePacketHandler $handler) : bool {
+    public function handle(StarGatePacketHandler $handler): bool
+    {
         return $handler->handleForwardPacket($this);
-    }
-
-    /**
-     * @param string $clientName
-     */
-    public function setClientName(string $clientName) : void {
-        $this->clientName = $clientName;
     }
 
     /**
      * @return string
      */
-    public function getClientName() : string {
+    public function getClientName(): string
+    {
         return $this->clientName;
     }
 
     /**
-     * @param UnknownPacket $packet
+     * @param string $clientName
      */
-    public function setPacket(UnknownPacket $packet) : void {
-        $this->packet = $packet;
+    public function setClientName(string $clientName): void
+    {
+        $this->clientName = $clientName;
     }
 
     /**
      * @return UnknownPacket
      */
-    public function getPacket() : UnknownPacket {
+    public function getPacket(): UnknownPacket
+    {
         return $this->packet;
+    }
+
+    /**
+     * @param UnknownPacket $packet
+     */
+    public function setPacket(UnknownPacket $packet): void
+    {
+        $this->packet = $packet;
     }
 }

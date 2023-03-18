@@ -18,7 +18,8 @@ namespace alemiz\sga\protocol\types;
 
 use alemiz\sga\utils\StarGateFuture;
 
-class PingEntry {
+class PingEntry
+{
 
     /** @var StarGateFuture */
     private StarGateFuture $future;
@@ -30,7 +31,8 @@ class PingEntry {
      * @param StarGateFuture $future
      * @param int $timeout
      */
-    public function __construct(StarGateFuture $future, int $timeout) {
+    public function __construct(StarGateFuture $future, int $timeout)
+    {
         $this->future = $future;
         $this->timeout = $timeout;
     }
@@ -38,14 +40,16 @@ class PingEntry {
     /**
      * @return StarGateFuture
      */
-    public function getFuture() : StarGateFuture {
+    public function getFuture(): StarGateFuture
+    {
         return $this->future;
     }
 
     /**
      * @return int
      */
-    public function getTimeout() : int {
+    public function getTimeout(): int
+    {
         return $this->timeout;
     }
 

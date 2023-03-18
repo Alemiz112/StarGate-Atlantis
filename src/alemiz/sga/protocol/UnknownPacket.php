@@ -18,51 +18,59 @@ namespace alemiz\sga\protocol;
 
 use alemiz\sga\codec\StarGatePacketHandler;
 
-class UnknownPacket extends StarGatePacket {
+class UnknownPacket extends StarGatePacket
+{
 
     /** @var int */
     private int $packetId;
     /** @var string */
     private string $payload;
 
-    public function encodePayload() : void {
+    public function encodePayload(): void
+    {
         $this->put($this->payload);
     }
 
-    public function decodePayload() : void {
-       $this->payload = $this->getBuffer();
+    public function decodePayload(): void
+    {
+        $this->payload = $this->getBuffer();
     }
 
     /**
      * @param StarGatePacketHandler $handler
      * @return bool
      */
-    public function handle(StarGatePacketHandler $handler): bool {
+    public function handle(StarGatePacketHandler $handler): bool
+    {
         return $handler->handleUnknown($this);
     }
 
-    public function getPacketId() : int {
+    public function getPacketId(): int
+    {
         return $this->packetId;
     }
 
     /**
      * @param int $packetId
      */
-    public function setPacketId(int $packetId) : void {
+    public function setPacketId(int $packetId): void
+    {
         $this->packetId = $packetId;
     }
 
     /**
      * @return string
      */
-    public function getPayload() : string {
+    public function getPayload(): string
+    {
         return $this->payload;
     }
 
     /**
      * @param string $payload
      */
-    public function setPayload(string $payload) : void {
+    public function setPayload(string $payload): void
+    {
         $this->payload = $payload;
     }
 }

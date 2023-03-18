@@ -19,7 +19,8 @@ namespace alemiz\sga\events;
 use pocketmine\event\Cancellable;
 use pocketmine\event\CancellableTrait;
 
-class ClientAuthenticatedEvent extends ClientEvent implements Cancellable {
+class ClientAuthenticatedEvent extends ClientEvent implements Cancellable
+{
 
     use CancellableTrait;
 
@@ -27,17 +28,19 @@ class ClientAuthenticatedEvent extends ClientEvent implements Cancellable {
     private string $cancelMessage = "Authentication was canceled!";
 
     /**
-     * @param string $cancelMessage
+     * @return string
      */
-    public function setCancelMessage(string $cancelMessage) : void {
-        $this->cancelMessage = $cancelMessage;
+    public function getCancelMessage(): string
+    {
+        return $this->cancelMessage;
     }
 
     /**
-     * @return string
+     * @param string $cancelMessage
      */
-    public function getCancelMessage() : string {
-        return $this->cancelMessage;
+    public function setCancelMessage(string $cancelMessage): void
+    {
+        $this->cancelMessage = $cancelMessage;
     }
 
 }

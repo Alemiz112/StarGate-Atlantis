@@ -19,6 +19,7 @@ namespace alemiz\sga\events;
 use pocketmine\event\Cancellable;
 use pocketmine\event\CancellableTrait;
 
-class ClientCreationEvent extends ClientEvent implements Cancellable {
+class ClientCreationEvent extends ClientEvent implements Cancellable
+{
     use CancellableTrait;
 }

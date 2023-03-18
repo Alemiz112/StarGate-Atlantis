@@ -18,42 +18,19 @@ namespace alemiz\sga\protocol\types;
 
 use alemiz\sga\protocol\HandshakePacket;
 
-class HandshakeData {
+class HandshakeData
+{
 
     public const SOFTWARE_POCKETMINE = 0;
-    public const SOFTWARE_PMMP4 = 1;
-
-    /**
-     * @param HandshakePacket $packet
-     * @param HandshakeData $handshakeData
-     */
-    public static function encodeData(HandshakePacket $packet, HandshakeData $handshakeData) : void {
-        PacketHelper::writeInt($packet, $handshakeData->getSoftware());
-        PacketHelper::writeString($packet, $handshakeData->getClientName());
-        PacketHelper::writeString($packet, $handshakeData->getPassword());
-        PacketHelper::writeInt($packet, $handshakeData->getProtocolVersion());
-    }
-
-    /**
-     * @param HandshakePacket $packet
-     * @return HandshakeData
-     */
-    public static function decodeData(HandshakePacket $packet) : HandshakeData {
-        $software = PacketHelper::readInt($packet);
-        $clientName = PacketHelper::readString($packet);
-        $password = PacketHelper::readString($packet);
-        $protocolVersion = PacketHelper::readInt($packet);
-        return new HandshakeData($clientName, $password, $software, $protocolVersion);
-    }
-
-    /** @var string  */
-    private $clientName;
-    /** @var string  */
-    private $password;
+    public const SOFTWARE_PMMP5 = 1;
+    /** @var string */
+    private string $clientName;
+    /** @var string */
+    private string $password;
     /** @var int */
-    private $software;
+    private int $software;
     /** @var int */
-    private $protocolVersion;
+    private int $protocolVersion;
 
     /**
      * HandshakeData constructor.
@@ -62,7 +39,8 @@ class HandshakeData {
      * @param int $software
      * @param int $protocolVersion
      */
-    public function __construct(string $clientName, string $password, int $software, int $protocolVersion){
+    public function __construct(string $clientName, string $password, int $software, int $protocolVersion)
+    {
         $this->clientName = $clientName;
         $this->password = $password;
         $this->software = $software;
@@ -70,30 +48,59 @@ class HandshakeData {
     }
 
     /**
+     * @param HandshakePacket $packet
+     * @param HandshakeData $handshakeData
+     */
+    public static function encodeData(HandshakePacket $packet, HandshakeData $handshakeData): void
+    {
+        PacketHelper::writeInt($packet, $handshakeData->getSoftware());
+        PacketHelper::writeString($packet, $handshakeData->getClientName());
+        PacketHelper::writeString($packet, $handshakeData->getPassword());
+        PacketHelper::writeInt($packet, $handshakeData->getProtocolVersion());
+    }
+
+    /**
+     * @return int
+     */
+    public function getSoftware(): int
+    {
+        return $this->software;
+    }
+
+    /**
      * @return string
      */
-    public function getClientName() : string {
+    public function getClientName(): string
+    {
         return $this->clientName;
     }
 
     /**
      * @return string
      */
-    public function getPassword() : string {
+    public function getPassword(): string
+    {
         return $this->password;
     }
 
     /**
      * @return int
      */
-    public function getSoftware() : int {
-        return $this->software;
+    public function getProtocolVersion(): int
+    {
+        return $this->protocolVersion;
     }
 
     /**
-     * @return int
+     * @param HandshakePacket $packet
+     * @return HandshakeData
      */
-    public function getProtocolVersion() : int {
-        return $this->protocolVersion;
+    public static function decodeData(HandshakePacket $packet): HandshakeData
+    {
+        $software = PacketHelper::readInt($packet);
+        $clientName = PacketHelper::readString($packet);
+        $password = PacketHelper::readString($packet);
+        $protocolVersion = PacketHelper::readInt($packet);
+        return new HandshakeData($clientName, $password, $software, $protocolVersion);
     }
 }

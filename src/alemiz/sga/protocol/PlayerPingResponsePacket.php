@@ -20,22 +20,25 @@ use alemiz\sga\codec\StarGatePacketHandler;
 use alemiz\sga\codec\StarGatePackets;
 use alemiz\sga\protocol\types\PacketHelper;
 
-class PlayerPingResponsePacket extends StarGatePacket {
+class PlayerPingResponsePacket extends StarGatePacket
+{
 
     /** @var string */
-    private $playerName;
+    private string $playerName;
     /** @var int */
-    private $upstreamPing;
+    private int $upstreamPing;
     /** @var int */
-    private $downstreamPing;
+    private int $downstreamPing;
 
-    public function encodePayload() : void {
+    public function encodePayload(): void
+    {
         PacketHelper::writeString($this, $this->playerName);
         PacketHelper::writeLong($this, $this->upstreamPing);
         PacketHelper::writeLong($this, $this->downstreamPing);
     }
 
-    public function decodePayload() : void {
+    public function decodePayload(): void
+    {
         $this->playerName = PacketHelper::readString($this);
         $this->upstreamPing = PacketHelper::readLong($this);
         $this->downstreamPing = PacketHelper::readLong($this);
@@ -45,64 +48,72 @@ class PlayerPingResponsePacket extends StarGatePacket {
      * @param StarGatePacketHandler $handler
      * @return bool
      */
-    public function handle(StarGatePacketHandler $handler) : bool {
+    public function handle(StarGatePacketHandler $handler): bool
+    {
         return $handler->handlePlayerPingResponse($this);
     }
 
-    public function getPacketId() : int {
+    public function getPacketId(): int
+    {
         return StarGatePackets::PLAYER_PING_RESPONSE_PACKET;
     }
 
     /**
      * @return bool
      */
-    public function isResponse() : bool {
+    public function isResponse(): bool
+    {
         return true;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPlayerName(): string
+    {
+        return $this->playerName;
     }
 
     /**
      * @param string $playerName
      * @return void
      */
-    public function setPlayerName(string $playerName) : void {
+    public function setPlayerName(string $playerName): void
+    {
         $this->playerName = $playerName;
     }
 
     /**
-     * @return string
+     * @return int
      */
-    public function getPlayerName() : string {
-        return $this->playerName;
+    public function getUpstreamPing(): int
+    {
+        return $this->upstreamPing;
     }
-
 
     /**
      * @param int $upstreamPing
      * @return void
      */
-    public function setUpstreamPing(int $upstreamPing) : void {
+    public function setUpstreamPing(int $upstreamPing): void
+    {
         $this->upstreamPing = $upstreamPing;
     }
 
     /**
      * @return int
      */
-    public function getUpstreamPing() : int {
-        return $this->upstreamPing;
+    public function getDownstreamPing(): int
+    {
+        return $this->downstreamPing;
     }
 
     /**
      * @param int $downstreamPing
      * @return void
      */
-    public function setDownstreamPing(int $downstreamPing) : void {
+    public function setDownstreamPing(int $downstreamPing): void
+    {
         $this->downstreamPing = $downstreamPing;
-    }
-
-    /**
-     * @return int
-     */
-    public function getDownstreamPing() : int {
-        return $this->downstreamPing;
     }
 }

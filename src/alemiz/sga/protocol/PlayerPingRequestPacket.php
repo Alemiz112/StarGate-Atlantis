@@ -20,16 +20,19 @@ use alemiz\sga\codec\StarGatePacketHandler;
 use alemiz\sga\codec\StarGatePackets;
 use alemiz\sga\protocol\types\PacketHelper;
 
-class PlayerPingRequestPacket extends StarGatePacket {
+class PlayerPingRequestPacket extends StarGatePacket
+{
 
     /** @var string */
-    private $playerName;
+    private string $playerName;
 
-    public function encodePayload() : void {
+    public function encodePayload(): void
+    {
         PacketHelper::writeString($this, $this->playerName);
     }
 
-    public function decodePayload() : void {
+    public function decodePayload(): void
+    {
         $this->playerName = PacketHelper::readString($this);
     }
 
@@ -37,32 +40,37 @@ class PlayerPingRequestPacket extends StarGatePacket {
      * @param StarGatePacketHandler $handler
      * @return bool
      */
-    public function handle(StarGatePacketHandler $handler) : bool {
+    public function handle(StarGatePacketHandler $handler): bool
+    {
         return $handler->handlePlayerPingRequest($this);
     }
 
-    public function getPacketId() : int {
+    public function getPacketId(): int
+    {
         return StarGatePackets::PLAYER_PING_REQUEST_PACKET;
     }
 
     /**
      * @return bool
      */
-    public function sendsResponse() : bool {
+    public function sendsResponse(): bool
+    {
         return true;
-    }
-
-    /**
-     * @param string $playerName
-     */
-    public function setPlayerName(string $playerName) : void {
-        $this->playerName = $playerName;
     }
 
     /**
      * @return string
      */
-    public function getPlayerName() : string {
+    public function getPlayerName(): string
+    {
         return $this->playerName;
+    }
+
+    /**
+     * @param string $playerName
+     */
+    public function setPlayerName(string $playerName): void
+    {
+        $this->playerName = $playerName;
     }
 }

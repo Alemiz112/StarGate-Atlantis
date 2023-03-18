@@ -25,7 +25,8 @@ use const AF_INET;
 use const SOCK_STREAM;
 use const SOL_TCP;
 
-class StarGateSocket {
+class StarGateSocket
+{
 
     /** @var StarGateConnection */
     private StarGateConnection $conn;
@@ -34,7 +35,6 @@ class StarGateSocket {
     private string $address;
     /** @var int */
     private int $port;
-    /** @var string */
 
     /**
      * StarGateSocket constructor.
@@ -42,7 +42,8 @@ class StarGateSocket {
      * @param string $address
      * @param int $port
      */
-    public function __construct(StarGateConnection $conn, string $address, int $port){
+    public function __construct(StarGateConnection $conn, string $address, int $port)
+    {
         $this->conn = $conn;
         $this->address = $address;
         $this->port = $port;
@@ -51,10 +52,11 @@ class StarGateSocket {
     /**
      * @return bool
      */
-    public function connect() : bool {
+    public function connect(): bool
+    {
         $socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
         try {
-            if ($socket === false){
+            if ($socket === false) {
                 throw new RuntimeException(socket_strerror(socket_last_error()));
             }
             if (!@socket_connect($socket, $this->address, $this->port)) {
@@ -63,7 +65,7 @@ class StarGateSocket {
 
             socket_set_nonblock($socket);
             socket_set_option($socket, SOL_TCP, TCP_NODELAY, 1);
-        }catch (Exception $e){
+        } catch (Exception $e) {
             $this->conn->getLogger()->error("Can not connect to StarGate server!");
             $this->conn->getLogger()->logException($e);
             return false;
@@ -73,7 +75,8 @@ class StarGateSocket {
         return true;
     }
 
-    public function close() : void {
+    public function close(): void
+    {
         socket_close($this->conn->socket);
     }
 }

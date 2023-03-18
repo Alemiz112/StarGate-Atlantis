@@ -28,11 +28,13 @@ use alemiz\sga\utils\PacketResponse;
 use alemiz\sga\utils\StarGateException;
 use alemiz\sga\utils\StarGateFuture;
 use Exception;
+use GlobalLogger;
 use pocketmine\plugin\PluginLogger;
 use function get_class;
 use function microtime;
 
-class ClientSession {
+class ClientSession
+{
 
     /** @var StarGateClient */
     private StarGateClient $client;
@@ -45,7 +47,7 @@ class ClientSession {
     private array $pendingResponses = [];
 
     /** @var StarGatePacketHandler|null */
-    private $packetHandler;
+    private ?StarGatePacketHandler $packetHandler;
 
     /** @var PingEntry|null */
     private ?PingEntry $pingEntry = null;
@@ -61,14 +63,54 @@ class ClientSession {
      * @param string $address
      * @param int $port
      */
-    public function __construct(StarGateClient $client, string $address, int $port){
+    public function __construct(StarGateClient $client, string $address, int $port)
+    {
         $this->client = $client;
-        $server = $client->getServer();
         $this->packetHandler = new HandshakePacketHandler($this);
-        $this->connection = new StarGateConnection($server->getLogger(), $address, $port, $client->getHandshakeData());
+        $this->connection = new StarGateConnection(GlobalLogger::get(), $address, $port, $client->getHandshakeData());
     }
 
-    public function onConnect() : void {
+    public function onTick(): void
+    {
+        if (!$this->isConnected()) {
+            return;
+        }
+
+        if ($this->connection->getState() === StarGateConnection::STATE_CONNECTED) {
+            $this->onConnect();
+        }
+
+        while (($payload = $this->connection->inputRead()) !== null && !empty($payload)) {
+            $codec = $this->client->getProtocolCodec();
+            try {
+                $packet = $codec->tryDecode($payload);
+                if ($packet !== null) {
+                    $this->onPacket($packet);
+                }
+            } catch (Exception $e) {
+                $this->getLogger()->error("§cCan not decode StarGate packet!");
+                $this->getLogger()->logException($e);
+            }
+        }
+
+
+        $currentTime = microtime(true) * 1000;
+        if ($this->pingEntry !== null && $currentTime >= $this->pingEntry->getTimeout()) {
+            $this->pingEntry->getFuture()->completeExceptionally(new StarGateException("Ping Timeout!"));
+            $this->pingEntry = null;
+        }
+    }
+
+    /**
+     * @return bool
+     */
+    public function isConnected(): bool
+    {
+        return !$this->connection->isClosed();
+    }
+
+    public function onConnect(): void
+    {
         $packet = new HandshakePacket();
         $packet->setHandshakeData($this->client->getHandshakeData());
         $this->sendPacket($packet);
@@ -77,43 +119,48 @@ class ClientSession {
         $this->client->onSessionConnected();
     }
 
-    public function onTick() : void {
-        if (!$this->isConnected()){
+    /**
+     * @param StarGatePacket $packet
+     */
+    public function sendPacket(StarGatePacket $packet): void
+    {
+        if (!$this->isConnected()) {
             return;
         }
 
-        if ($this->connection->getState() === StarGateConnection::STATE_CONNECTED){
-            $this->onConnect();
-        }
-
-        while (($payload = $this->connection->inputRead()) !== null && !empty($payload)){
-            $codec = $this->client->getProtocolCodec();
-            try {
-                $packet = $codec->tryDecode($payload);
-                if ($packet !== null){
-                    $this->onPacket($packet);
-                }
-            }catch (Exception $e){
-                $this->getLogger()->error("§cCan not decode StarGate packet!");
-                $this->getLogger()->logException($e);
+        $codec = $this->client->getProtocolCodec();
+        try {
+            $payload = $codec->tryEncode($packet);
+            if (!empty($payload)) {
+                $this->connection->writeBuffer($payload);
             }
+        } catch (Exception $e) {
+            $this->getLogger()->error("§cCan not encode StarGate packet " . get_class($packet) . "!");
+            $this->getLogger()->logException($e);
+            return;
         }
 
-
-        $currentTime = microtime(true) * 1000;
-        if ($this->pingEntry !== null && $currentTime >= $this->pingEntry->getTimeout()){
-            $this->pingEntry->getFuture()->completeExceptionally(new StarGateException("Ping Timeout!"));
-            $this->pingEntry = null;
+        if ($this->logInputLevel >= $packet->getLogLevel()) {
+            $this->getLogger()->debug("Sent " . get_class($packet));
         }
+    }
+
+    /**
+     * @return PluginLogger
+     */
+    public function getLogger(): PluginLogger
+    {
+        return $this->client->getLogger();
     }
 
     /**
      * @param StarGatePacket $packet
      */
-    private function onPacket(StarGatePacket $packet) : void {
+    private function onPacket(StarGatePacket $packet): void
+    {
         $handled = $this->packetHandler !== null && $packet->handle($this->packetHandler);
 
-        if ($packet->isResponse() && isset($this->pendingResponses[$packet->getResponseId()])){
+        if ($packet->isResponse() && isset($this->pendingResponses[$packet->getResponseId()])) {
             $response = $this->pendingResponses[$packet->getResponseId()];
             $response->complete($packet);
             unset($this->pendingResponses[$packet->getResponseId()]);
@@ -121,23 +168,23 @@ class ClientSession {
         }
 
         $customHandler = $this->client->getCustomHandler();
-        if (!$handled && $customHandler !== null){
+        if (!$handled && $customHandler !== null) {
             try {
-                if ($packet->handle($customHandler)){
+                if ($packet->handle($customHandler)) {
                     $handled = true;
                 }
-            }catch (Exception $e){
+            } catch (Exception $e) {
                 $this->getLogger()->error("Error occurred in custom packet handler!");
                 $this->getLogger()->logException($e);
             }
         }
 
-        if (!$handled){
-            $this->getLogger()->debug("Unhandled packet ".get_class($packet));
+        if (!$handled) {
+            $this->getLogger()->debug("Unhandled packet " . get_class($packet));
         }
 
-        if ($this->logInputLevel >= $packet->getLogLevel()){
-            $this->getLogger()->debug("Received ".get_class($packet));
+        if ($this->logInputLevel >= $packet->getLogLevel()) {
+            $this->getLogger()->debug("Received " . get_class($packet));
         }
     }
 
@@ -145,8 +192,9 @@ class ClientSession {
      * @param StarGatePacket $packet
      * @return PacketResponse|null
      */
-    public function responsePacket(StarGatePacket $packet) : ?PacketResponse {
-        if (!$packet->sendsResponse()){
+    public function responsePacket(StarGatePacket $packet): ?PacketResponse
+    {
+        if (!$packet->sendsResponse()) {
             return null;
         }
 
@@ -154,35 +202,10 @@ class ClientSession {
         $packet->setResponseId($responseId);
         $this->sendPacket($packet);
 
-        if (!isset($this->pendingResponses[$responseId])){
+        if (!isset($this->pendingResponses[$responseId])) {
             $this->pendingResponses[$responseId] = new PacketResponse();
         }
         return $this->pendingResponses[$responseId];
-    }
-
-    /**
-     * @param StarGatePacket $packet
-     */
-    public function sendPacket(StarGatePacket $packet) : void {
-        if (!$this->isConnected()){
-            return;
-        }
-
-        $codec = $this->client->getProtocolCodec();
-        try {
-            $payload = $codec->tryEncode($packet);
-            if (!empty($payload)){
-                $this->connection->writeBuffer($payload);
-            }
-        }catch (Exception $e){
-            $this->getLogger()->error("§cCan not encode StarGate packet ".get_class($packet)."!");
-            $this->getLogger()->logException($e);
-            return;
-        }
-
-        if ($this->logInputLevel >= $packet->getLogLevel()){
-            $this->getLogger()->debug("Sent ".get_class($packet));
-        }
     }
 
     /**
@@ -190,12 +213,11 @@ class ClientSession {
      * @return StarGateFuture
      * @noinspection PhpExpressionResultUnusedInspection
      */
-    public function pingServer(int $timeout) : StarGateFuture {
-        if ($this->pingEntry !== null){
-            $this->pingEntry->getFuture();
-        }
+    public function pingServer(int $timeout): StarGateFuture
+    {
+        $this->pingEntry?->getFuture();
 
-        $now = (int) microtime(true) * 1000;
+        $now = (int)microtime(true) * 1000;
         $entry = new PingEntry(new StarGateFuture(), $now + $timeout);
 
         $packet = new PingPacket();
@@ -207,11 +229,12 @@ class ClientSession {
     /**
      * @param PongPacket $packet
      */
-    public function onPongReceive(PongPacket $packet) : void {
-        if ($this->pingEntry === null){
+    public function onPongReceive(PongPacket $packet): void
+    {
+        if ($this->pingEntry === null) {
             return;
         }
-        $packet->setPongTime((int) microtime(true) * 1000);
+        $packet->setPongTime((int)microtime(true) * 1000);
         $this->pingEntry->getFuture()->complete($packet);
         $this->pingEntry = null;
     }
@@ -219,23 +242,38 @@ class ClientSession {
     /**
      * @param string $reason
      */
-    public function onDisconnect(string $reason) : void {
-        $this->getLogger()->info("§bStarGate server has been disconnected! Reason: ".$reason);
+    public function onDisconnect(string $reason): void
+    {
+        $this->getLogger()->info("§bStarGate server has been disconnected! Reason: " . $reason);
         $this->client->onSessionDisconnected();
         $this->close();
+    }
+
+    /**
+     * @return bool
+     */
+    public function close(): bool
+    {
+        if ($this->connection->isClosed()) {
+            return false;
+        }
+
+        $this->connection->close();
+        return true;
     }
 
     /**
      * @param string $reason
      * @param bool $send
      */
-    public function reconnect(string $reason, bool $send) : void {
-        if ($send){
+    public function reconnect(string $reason, bool $send): void
+    {
+        if ($send) {
             $packet = new DisconnectPacket();
             $packet->setReason($reason);
             $this->sendPacket($packet);
         }
-        $this->getLogger()->info("§bReconnecting to server! Reason: ".$reason);
+        $this->getLogger()->info("§bReconnecting to server! Reason: " . $reason);
         $this->close();
         $this->client->connect();
     }
@@ -243,11 +281,12 @@ class ClientSession {
     /**
      * @param string $reason
      */
-    public function disconnect(string $reason) : void {
-        if ($this->connection->isClosed()){
+    public function disconnect(string $reason): void
+    {
+        if ($this->connection->isClosed()) {
             return;
         }
-        $this->getLogger()->info("§bClosing StarGate connection! Reason: ".$reason);
+        $this->getLogger()->info("§bClosing StarGate connection! Reason: " . $reason);
 
         $packet = new DisconnectPacket();
         $packet->setReason($reason);
@@ -258,90 +297,73 @@ class ClientSession {
     /**
      * @return bool
      */
-    public function close() : bool {
-        if ($this->connection->isClosed()){
-            return false;
-        }
-
-        $this->connection->close();
-        return true;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isConnected() : bool {
-        return !$this->connection->isClosed();
-    }
-
-    /**
-     * @return bool
-     */
-    public function isAuthenticated() : bool {
+    public function isAuthenticated(): bool
+    {
         return $this->connection->getState() === StarGateConnection::STATE_AUTHENTICATED;
     }
 
     /**
      * @return StarGatePacketHandler|null
      */
-    public function getPacketHandler(): ?StarGatePacketHandler {
+    public function getPacketHandler(): ?StarGatePacketHandler
+    {
         return $this->packetHandler;
     }
 
     /**
      * @param StarGatePacketHandler|null $packetHandler
      */
-    public function setPacketHandler(?StarGatePacketHandler $packetHandler) : void {
+    public function setPacketHandler(?StarGatePacketHandler $packetHandler): void
+    {
         $this->packetHandler = $packetHandler;
     }
 
     /**
      * @return StarGateClient
      */
-    public function getClient() : StarGateClient {
+    public function getClient(): StarGateClient
+    {
         return $this->client;
-    }
-
-    /**
-     * @return PluginLogger
-     */
-    public function getLogger() : PluginLogger {
-        return $this->client->getLogger();
     }
 
     /**
      * @return StarGateConnection
      */
-    public function getConnection() : StarGateConnection {
+    public function getConnection(): StarGateConnection
+    {
         return $this->connection;
+    }
+
+    /**
+     * @return int
+     */
+    public function getLogInputLevel(): int
+    {
+        return $this->logInputLevel;
     }
 
     /**
      * @param int $logInputLevel
      */
-    public function setLogInputLevel(int $logInputLevel) : void {
+    public function setLogInputLevel(int $logInputLevel): void
+    {
         $this->logInputLevel = $logInputLevel;
     }
 
     /**
      * @return int
      */
-    public function getLogInputLevel() : int {
-        return $this->logInputLevel;
+    public function getLogOutputLevel(): int
+    {
+        return $this->logOutputLevel;
     }
 
     /**
      * @param int $logOutputLevel
      */
-    public function setLogOutputLevel(int $logOutputLevel) : void {
+    public function setLogOutputLevel(int $logOutputLevel): void
+    {
         $this->logOutputLevel = $logOutputLevel;
-    }
-
-    /**
-     * @return int
-     */
-    public function getLogOutputLevel() : int {
-        return $this->logOutputLevel;
     }
 
 }

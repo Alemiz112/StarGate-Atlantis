@@ -25,7 +25,8 @@ use alemiz\sga\utils\PacketResponse;
 use pocketmine\player\Player;
 use pocketmine\plugin\PluginBase;
 
-class StarGateAtlantis extends PluginBase {
+class StarGateAtlantis extends PluginBase
+{
 
     public const STARGATE_VERSION = 2;
 
@@ -47,105 +48,57 @@ class StarGateAtlantis extends PluginBase {
     /** @var bool */
     private bool $autoStart;
 
-    public function onEnable() : void {
-        self::$instance = $this;
-		$this->tickInterval = $this->getConfig()->get("tickInterval");
-		$this->defaultClient = $this->getConfig()->get("defaultClient");
-		$this->logLevel = $this->getConfig()->get("logLevel");
-		$this->autoStart = $this->getConfig()->get("autoStart");
-
-		$this->clients = [];
-        foreach ($this->getConfig()->get("connections") as $clientName => $ignore){
-            $this->createClient($clientName);
-        }
-    }
-
-    public function onDisable() : void {
-        foreach ($this->clients as $client){
-            $client->shutdown();
-        }
-    }
-
-    /**
-     * @param string $clientName
-     */
-    private function createClient(string $clientName) : void {
-        if (!isset($this->getConfig()->get("connections")[$clientName])){
-            $this->getLogger()->warning("§cCan not load client ".$clientName."! Wrong config!");
-            return;
-        }
-
-        $config = $this->getConfig()->get("connections")[$clientName];
-        $handshakeData = new HandshakeData($clientName, $config["password"], HandshakeData::SOFTWARE_POCKETMINE, self::STARGATE_VERSION);
-        $client = new StarGateClient($config["address"], (int) $config["port"], $handshakeData, $this);
-        $this->onClientCreation($clientName, $client);
-    }
-
-    /**
-     * @param string $clientName
-     * @param StarGateClient $client
-     */
-    public function onClientCreation(string $clientName, StarGateClient $client) : void {
-        if (isset($this->clients[$clientName])){
-            return;
-        }
-
-        $event = new ClientCreationEvent($client, $this);
-        $event->call();
-
-        if ($event->isCancelled()){
-            return;
-        }
-        if ($this->autoStart){
-            $client->connect();
-        }
-        $this->clients[$clientName] = $client;
-    }
-
     /**
      * @return StarGateAtlantis
      */
-    public static function getInstance() : StarGateAtlantis {
+    public static function getInstance(): StarGateAtlantis
+    {
         return self::$instance;
     }
 
     /**
      * @return int
      */
-    public function getTickInterval() : int {
+    public function getTickInterval(): int
+    {
         return $this->tickInterval;
-    }
-
-    public function getClient(string $clientName) : ?StarGateClient {
-        return $this->clients[$clientName] ?? null;
     }
 
     /**
      * @return StarGateClient|null
      */
-    public function getDefaultClient() : ?StarGateClient {
+    public function getDefaultClient(): ?StarGateClient
+    {
         return $this->getClient($this->defaultClient);
+    }
+
+    public function getClient(string $clientName): ?StarGateClient
+    {
+        return $this->clients[$clientName] ?? null;
     }
 
     /**
      * @return StarGateClient[]
      */
-    public function getClients() : array {
+    public function getClients(): array
+    {
         return $this->clients;
-    }
-
-    /**
-     * @param int $logLevel
-     */
-    public function setLogLevel(int $logLevel) : void {
-        $this->logLevel = $logLevel;
     }
 
     /**
      * @return int
      */
-    public function getLogLevel() : int {
+    public function getLogLevel(): int
+    {
         return $this->logLevel;
+    }
+
+    /**
+     * @param int $logLevel
+     */
+    public function setLogLevel(int $logLevel): void
+    {
+        $this->logLevel = $logLevel;
     }
 
     /**
@@ -154,9 +107,10 @@ class StarGateAtlantis extends PluginBase {
      * @param string $targetServer server where player will be sent.
      * @param string|null $clientName client name that will be used.
      */
-    public function transferPlayer(Player $player, string $targetServer, ?string $clientName = null) : void {
+    public function transferPlayer(Player $player, string $targetServer, ?string $clientName = null): void
+    {
         $client = $this->getClient($clientName ?? $this->defaultClient);
-        if ($client === null){
+        if ($client === null) {
             return;
         }
         $packet = new ServerTransferPacket();
@@ -172,14 +126,74 @@ class StarGateAtlantis extends PluginBase {
      * @param string|null $clientName client name that will be used.
      * @return PacketResponse|null future that can be used to get response data.
      */
-    public function serverInfo(string $serverName, bool $selfMode, ?string $clientName = null) : ?PacketResponse {
+    public function serverInfo(string $serverName, bool $selfMode, ?string $clientName = null): ?PacketResponse
+    {
         $client = $this->getClient($clientName ?? $this->defaultClient);
-        if ($client === null){
+        if ($client === null) {
             return null;
         }
         $packet = new ServerInfoRequestPacket();
         $packet->setServerName($serverName);
         $packet->setSelfInfo($selfMode);
         return $client->responsePacket($packet);
+    }
+
+    protected function onEnable(): void
+    {
+        self::$instance = $this;
+        $this->tickInterval = $this->getConfig()->get("tickInterval");
+        $this->defaultClient = $this->getConfig()->get("defaultClient");
+        $this->logLevel = $this->getConfig()->get("logLevel");
+        $this->autoStart = $this->getConfig()->get("autoStart");
+
+        $this->clients = [];
+        foreach ($this->getConfig()->get("connections") as $clientName => $ignore) {
+            $this->createClient($clientName);
+        }
+    }
+
+    /**
+     * @param string $clientName
+     */
+    private function createClient(string $clientName): void
+    {
+        if (!isset($this->getConfig()->get("connections")[$clientName])) {
+            $this->getLogger()->warning("§cCan not load client " . $clientName . "! Wrong config!");
+            return;
+        }
+
+        $config = $this->getConfig()->get("connections")[$clientName];
+        $handshakeData = new HandshakeData($clientName, $config["password"], HandshakeData::SOFTWARE_POCKETMINE, self::STARGATE_VERSION);
+        $client = new StarGateClient($config["address"], (int)$config["port"], $handshakeData, $this);
+        $this->onClientCreation($clientName, $client);
+    }
+
+    /**
+     * @param string $clientName
+     * @param StarGateClient $client
+     */
+    public function onClientCreation(string $clientName, StarGateClient $client): void
+    {
+        if (isset($this->clients[$clientName])) {
+            return;
+        }
+
+        $event = new ClientCreationEvent($client, $this);
+        $event->call();
+
+        if ($event->isCancelled()) {
+            return;
+        }
+        if ($this->autoStart) {
+            $client->connect();
+        }
+        $this->clients[$clientName] = $client;
+    }
+
+    protected function onDisable(): void
+    {
+        foreach ($this->clients as $client) {
+            $client->shutdown();
+        }
     }
 }

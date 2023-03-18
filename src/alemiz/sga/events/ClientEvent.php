@@ -21,7 +21,8 @@ use alemiz\sga\client\StarGateClient;
 use alemiz\sga\StarGateAtlantis;
 use pocketmine\event\Event;
 
-abstract class ClientEvent extends Event {
+abstract class ClientEvent extends Event
+{
 
     /** @var StarGateAtlantis */
     private StarGateAtlantis $plugin;
@@ -34,7 +35,8 @@ abstract class ClientEvent extends Event {
      * @param StarGateClient $client
      * @param StarGateAtlantis $plugin
      */
-    public function __construct(StarGateClient $client, StarGateAtlantis $plugin){
+    public function __construct(StarGateClient $client, StarGateAtlantis $plugin)
+    {
         $this->client = $client;
         $this->plugin = $plugin;
     }
@@ -43,21 +45,24 @@ abstract class ClientEvent extends Event {
     /**
      * @return StarGateClient
      */
-    public function getClient() : StarGateClient {
+    public function getClient(): StarGateClient
+    {
         return $this->client;
     }
 
     /**
      * @return ClientSession|null
      */
-    public function getSession() : ?ClientSession {
+    public function getSession(): ?ClientSession
+    {
         return $this->client->getSession();
     }
 
     /**
      * @return StarGateAtlantis
      */
-    public function getPlugin() : StarGateAtlantis {
+    public function getPlugin(): StarGateAtlantis
+    {
         return $this->plugin;
     }
 

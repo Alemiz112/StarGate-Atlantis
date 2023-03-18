@@ -20,7 +20,8 @@ use alemiz\sga\codec\StarGatePacketHandler;
 use alemiz\sga\codec\StarGatePackets;
 use alemiz\sga\protocol\types\PacketHelper;
 
-class ServerInfoResponsePacket extends StarGatePacket {
+class ServerInfoResponsePacket extends StarGatePacket
+{
 
     /** @var string */
     private string $serverName;
@@ -35,34 +36,36 @@ class ServerInfoResponsePacket extends StarGatePacket {
     /** @var string[] */
     private array $serverList;
 
-    public function encodePayload() : void {
+    public function encodePayload(): void
+    {
         PacketHelper::writeString($this, $this->serverName);
         PacketHelper::writeBoolean($this, $this->selfInfo);
 
         PacketHelper::writeInt($this, $this->onlinePlayers);
         PacketHelper::writeInt($this, $this->maxPlayers);
 
-        PacketHelper::writeArray($this, $this->playerList, static function (StarGatePacket $buf, string $playerName){
+        PacketHelper::writeArray($this, $this->playerList, static function (StarGatePacket $buf, string $playerName) {
             PacketHelper::writeString($buf, $playerName);
         });
 
-        PacketHelper::writeArray($this, $this->serverList, static function (StarGatePacket $buf, string $serverName){
+        PacketHelper::writeArray($this, $this->serverList, static function (StarGatePacket $buf, string $serverName) {
             PacketHelper::writeString($buf, $serverName);
         });
     }
 
-    public function decodePayload() : void {
+    public function decodePayload(): void
+    {
         $this->serverName = PacketHelper::readString($this);
         $this->selfInfo = PacketHelper::readBoolean($this);
 
         $this->onlinePlayers = PacketHelper::readInt($this);
         $this->maxPlayers = PacketHelper::readInt($this);
 
-        $this->playerList = PacketHelper::readArray($this, static function(StarGatePacket $buf){
-           return PacketHelper::readString($buf);
+        $this->playerList = PacketHelper::readArray($this, static function (StarGatePacket $buf) {
+            return PacketHelper::readString($buf);
         });
 
-        $this->serverList = PacketHelper::readArray($this, static function(StarGatePacket $buf){
+        $this->serverList = PacketHelper::readArray($this, static function (StarGatePacket $buf) {
             return PacketHelper::readString($buf);
         });
     }
@@ -71,102 +74,117 @@ class ServerInfoResponsePacket extends StarGatePacket {
      * @param StarGatePacketHandler $handler
      * @return bool
      */
-    public function handle(StarGatePacketHandler $handler) : bool {
+    public function handle(StarGatePacketHandler $handler): bool
+    {
         return $handler->handleServerInfoResponse($this);
     }
 
-    public function getPacketId() : int {
+    public function getPacketId(): int
+    {
         return StarGatePackets::SERVER_INFO_RESPONSE_PACKET;
     }
 
     /**
      * @return bool
      */
-    public function isResponse() : bool {
+    public function isResponse(): bool
+    {
         return true;
-    }
-
-    /**
-     * @param string $serverName
-     */
-    public function setServerName(string $serverName) : void {
-        $this->serverName = $serverName;
     }
 
     /**
      * @return string
      */
-    public function getServerName() : string {
+    public function getServerName(): string
+    {
         return $this->serverName;
     }
 
     /**
-     * @param bool $selfInfo
+     * @param string $serverName
      */
-    public function setSelfInfo(bool $selfInfo) : void {
-        $this->selfInfo = $selfInfo;
+    public function setServerName(string $serverName): void
+    {
+        $this->serverName = $serverName;
     }
 
     /**
      * @return bool
      */
-    public function isSelfInfo() : bool {
+    public function isSelfInfo(): bool
+    {
         return $this->selfInfo;
+    }
+
+    /**
+     * @param bool $selfInfo
+     */
+    public function setSelfInfo(bool $selfInfo): void
+    {
+        $this->selfInfo = $selfInfo;
+    }
+
+    /**
+     * @return int
+     */
+    public function getOnlinePlayers(): int
+    {
+        return $this->onlinePlayers;
     }
 
     /**
      * @param int $onlinePlayers
      */
-    public function setOnlinePlayers(int $onlinePlayers) : void {
+    public function setOnlinePlayers(int $onlinePlayers): void
+    {
         $this->onlinePlayers = $onlinePlayers;
     }
 
     /**
      * @return int
      */
-    public function getOnlinePlayers() : int {
-        return $this->onlinePlayers;
+    public function getMaxPlayers(): int
+    {
+        return $this->maxPlayers;
     }
 
     /**
      * @param int $maxPlayers
      */
-    public function setMaxPlayers(int $maxPlayers) : void {
+    public function setMaxPlayers(int $maxPlayers): void
+    {
         $this->maxPlayers = $maxPlayers;
     }
 
     /**
-     * @return int
+     * @return string[]
      */
-    public function getMaxPlayers() : int {
-        return $this->maxPlayers;
+    public function getPlayerList(): array
+    {
+        return $this->playerList;
     }
 
     /**
      * @param string[] $playerList
      */
-    public function setPlayerList(array $playerList) : void {
+    public function setPlayerList(array $playerList): void
+    {
         $this->playerList = $playerList;
     }
 
     /**
      * @return string[]
      */
-    public function getPlayerList() : array {
-        return $this->playerList;
+    public function getServerList(): array
+    {
+        return $this->serverList;
     }
 
     /**
      * @param string[] $serverList
      */
-    public function setServerList(array $serverList) : void {
+    public function setServerList(array $serverList): void
+    {
         $this->serverList = $serverList;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getServerList() : array {
-        return $this->serverList;
     }
 }

@@ -19,7 +19,8 @@ namespace alemiz\sga\utils;
 use Closure;
 use Exception;
 
-class StarGateFuture {
+class StarGateFuture
+{
 
 
     /**
@@ -32,12 +33,13 @@ class StarGateFuture {
     /**
      * @param mixed $response
      */
-    public function complete($response) : void {
-        if (empty($this->closures)){
+    public function complete(mixed $response): void
+    {
+        if (empty($this->closures)) {
             return;
         }
 
-        foreach ($this->closures as $closure){
+        foreach ($this->closures as $closure) {
             $closure($response, null);
         }
     }
@@ -45,12 +47,13 @@ class StarGateFuture {
     /**
      * @param Exception $e
      */
-    public function completeExceptionally(Exception $e) : void {
-        if (empty($this->closures)){
+    public function completeExceptionally(Exception $e): void
+    {
+        if (empty($this->closures)) {
             return;
         }
 
-        foreach ($this->closures as $closure){
+        foreach ($this->closures as $closure) {
             $closure(null, $e);
         }
     }
@@ -58,7 +61,8 @@ class StarGateFuture {
     /**
      * @param Closure $closure
      */
-    public function whenComplete(Closure $closure) : void {
+    public function whenComplete(Closure $closure): void
+    {
         $this->closures[] = $closure;
     }
 

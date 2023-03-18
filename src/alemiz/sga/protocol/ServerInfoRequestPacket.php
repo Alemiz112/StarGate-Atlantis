@@ -20,19 +20,22 @@ use alemiz\sga\codec\StarGatePacketHandler;
 use alemiz\sga\codec\StarGatePackets;
 use alemiz\sga\protocol\types\PacketHelper;
 
-class ServerInfoRequestPacket extends StarGatePacket {
+class ServerInfoRequestPacket extends StarGatePacket
+{
 
     /** @var string */
     private string $serverName;
     /** @var bool */
     private bool $selfInfo;
 
-    public function encodePayload() : void {
+    public function encodePayload(): void
+    {
         PacketHelper::writeString($this, $this->serverName);
         PacketHelper::writeBoolean($this, $this->selfInfo);
     }
 
-    public function decodePayload() : void {
+    public function decodePayload(): void
+    {
         $this->serverName = PacketHelper::readString($this);
         $this->selfInfo = PacketHelper::readBoolean($this);
     }
@@ -41,46 +44,53 @@ class ServerInfoRequestPacket extends StarGatePacket {
      * @param StarGatePacketHandler $handler
      * @return bool
      */
-    public function handle(StarGatePacketHandler $handler) : bool {
+    public function handle(StarGatePacketHandler $handler): bool
+    {
         return $handler->handleServerInfoRequest($this);
     }
 
-    public function getPacketId() : int {
+    public function getPacketId(): int
+    {
         return StarGatePackets::SERVER_INFO_REQUEST_PACKET;
     }
 
     /**
      * @return bool
      */
-    public function sendsResponse() : bool {
+    public function sendsResponse(): bool
+    {
         return true;
-    }
-
-    /**
-     * @param string $serverName
-     */
-    public function setServerName(string $serverName) : void {
-        $this->serverName = $serverName;
     }
 
     /**
      * @return string
      */
-    public function getServerName() : string {
+    public function getServerName(): string
+    {
         return $this->serverName;
     }
 
     /**
-     * @param bool $selfInfo
+     * @param string $serverName
      */
-    public function setSelfInfo(bool $selfInfo) : void {
-        $this->selfInfo = $selfInfo;
+    public function setServerName(string $serverName): void
+    {
+        $this->serverName = $serverName;
     }
 
     /**
      * @return bool
      */
-    public function isSelfInfo() : bool {
+    public function isSelfInfo(): bool
+    {
         return $this->selfInfo;
+    }
+
+    /**
+     * @param bool $selfInfo
+     */
+    public function setSelfInfo(bool $selfInfo): void
+    {
+        $this->selfInfo = $selfInfo;
     }
 }

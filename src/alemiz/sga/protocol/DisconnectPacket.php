@@ -21,18 +21,21 @@ use alemiz\sga\codec\StarGatePackets;
 use alemiz\sga\protocol\types\PacketHelper;
 use alemiz\sga\utils\LogLevel;
 
-class DisconnectPacket extends StarGatePacket {
+class DisconnectPacket extends StarGatePacket
+{
 
     public const CLIENT_SHUTDOWN = "StarGate client shutdown!";
 
     /** @var string */
     private string $reason;
 
-    public function encodePayload() : void {
+    public function encodePayload(): void
+    {
         PacketHelper::writeString($this, $this->reason);
     }
 
-    public function decodePayload() : void {
+    public function decodePayload(): void
+    {
         $this->reason = PacketHelper::readString($this);
     }
 
@@ -40,32 +43,37 @@ class DisconnectPacket extends StarGatePacket {
      * @param StarGatePacketHandler $handler
      * @return bool
      */
-    public function handle(StarGatePacketHandler $handler) : bool {
+    public function handle(StarGatePacketHandler $handler): bool
+    {
         return $handler->handleDisconnect($this);
     }
 
-    public function getPacketId() : int {
+    public function getPacketId(): int
+    {
         return StarGatePackets::DISCONNECT_PACKET;
-    }
-
-    /**
-     * @param string $reason
-     */
-    public function setReason(string $reason) : void {
-        $this->reason = $reason;
     }
 
     /**
      * @return string
      */
-    public function getReason() : string {
+    public function getReason(): string
+    {
         return $this->reason;
+    }
+
+    /**
+     * @param string $reason
+     */
+    public function setReason(string $reason): void
+    {
+        $this->reason = $reason;
     }
 
     /**
      * @return int
      */
-    public function getLogLevel() : int {
+    public function getLogLevel(): int
+    {
         return LogLevel::LEVEL_ALL;
     }
 }

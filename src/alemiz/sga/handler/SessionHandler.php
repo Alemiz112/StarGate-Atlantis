@@ -19,19 +19,22 @@ namespace alemiz\sga\handler;
 use alemiz\sga\client\ClientSession;
 use alemiz\sga\codec\StarGatePacketHandler;
 
-class SessionHandler extends StarGatePacketHandler {
+class SessionHandler extends StarGatePacketHandler
+{
 
     /** @var ClientSession */
     protected ClientSession $session;
 
-    public function __construct(ClientSession $session) {
+    public function __construct(ClientSession $session)
+    {
         $this->session = $session;
     }
 
     /**
      * @return ClientSession
      */
-    public function getSession() : ClientSession {
+    public function getSession(): ClientSession
+    {
         return $this->session;
     }
 }
