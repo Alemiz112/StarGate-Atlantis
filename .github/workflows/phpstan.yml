@@ -1,0 +1,22 @@
+name: CI
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build-php:
+    name: Prepare PHP
+    runs-on: ${{ matrix.image }}
+    strategy:
+      matrix:
+        image: [ ubuntu-20.04 ]
+        php: [ 8.1, 8.2 ]
+
+    steps:
+      - name: Build and prepare PHP cache
+        uses: pmmp/setup-php-action@d2510ba2c63846f7aac4ed6e8b6b2346400c9ef0
+        with:
+          php-version: ${{ matrix.php }}
+          install-path: "./bin"
+          pm-version-major: 5
