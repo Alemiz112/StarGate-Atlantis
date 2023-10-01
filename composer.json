@@ -1,12 +1,12 @@
 {
+    "name": "alemiz112/stargate-atlantis",
     "require-dev": {
         "phpstan/phpstan": "^1.10",
         "pocketmine/pocketmine-mp": "^5.6.0"
     },
   "require": {
     "ext-sockets": "*",
-    "ext-pmmpthread": "*",
-    "ext-http": "*"
+    "ext-pmmpthread": "*"
   },
     "scripts": {
         "lint": "@php vendor/bin/phpstan analyse --memory-limit=2G src"
