@@ -302,10 +302,7 @@ class ClientSession {
         return $this->client;
     }
 
-    /**
-     * @return PluginLogger
-     */
-    public function getLogger() : PluginLogger {
+    public function getLogger() : \AttachableLogger {
         return $this->client->getLogger();
     }
 

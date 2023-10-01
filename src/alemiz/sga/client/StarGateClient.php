@@ -37,8 +37,7 @@ class StarGateClient extends Task {
     private StarGateAtlantis $loader;
     /** @var Server */
     private Server $server;
-    /** @var PluginLogger */
-    private $logger;
+    private \AttachableLogger $logger;
 
     /** @var ProtocolCodec */
     private ProtocolCodec $protocolCodec;
@@ -185,10 +184,7 @@ class StarGateClient extends Task {
         return $this->server;
     }
 
-    /**
-     * @return PluginLogger
-     */
-    public function getLogger() : PluginLogger {
+    public function getLogger() : \AttachableLogger {
         return $this->logger;
     }
 

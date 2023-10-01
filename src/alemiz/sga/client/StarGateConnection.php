@@ -23,6 +23,7 @@ use pmmp\thread\Thread as NativeThread;
 use pmmp\thread\ThreadSafeArray;
 use pocketmine\thread\log\ThreadSafeLogger;
 use pocketmine\thread\Thread;
+use pocketmine\utils\AssumptionFailedError;
 use pocketmine\utils\Binary;
 use function socket_read;
 use function strlen;
@@ -42,8 +43,7 @@ class StarGateConnection extends Thread {
     /** @var StarGateSocket */
     private StarGateSocket $starGateSocket;
 
-    /** @var resource */
-    public $socket;
+    public ?\Socket $socket;
 
     /** @var string */
     private string $address;
@@ -120,6 +120,11 @@ class StarGateConnection extends Thread {
         $error = socket_last_error();
         socket_clear_error($this->socket);
 
+        $socket = $this->socket;
+
+        if ($socket === null) {
+            goto error;
+        }
         if ($error === 10057 || $error === 10054 || $error === 10053){
             error:
             $this->getLogger()->info("§cConnection with StarGate server has disconnected unexpectedly!");
@@ -127,38 +132,22 @@ class StarGateConnection extends Thread {
             return;
         }
 
-        $data = @socket_read($this->socket, 65536, PHP_BINARY_READ);
+        if ($socket === null) {
+            throw new AssumptionFailedError("This should never happen");
+        }
+
+        $data = @socket_read($socket, 65536, PHP_BINARY_READ);
         if ($data !== ""){
             $this->buffer .= $data;
         }
 
         while (($packet = $this->outRead()) !== null && $packet !== ""){
-            if (@socket_write($this->socket, $packet) === false){
+            if (@socket_write($socket, $packet) === false){
                 goto error;
             }
         }
 
         $this->readBuffer();
-    }
-
-    /**
-     * @param string $buffer
-     * @param int $len
-     * @param int $offset
-     * @return int
-     */
-    private function verifyHeader(string $buffer, int $len, int $offset) : int {
-        if (($offset + 2) > $len) {
-            // No PacketId + Response info
-            return 0;
-        }
-
-        $index = 1; // PacketID
-        $supportsResponse = Binary::readBool($buffer[$offset + $index++]);
-        if ($supportsResponse) {
-            $index += 4; // Skip ResponseID
-        }
-        return $index;
     }
 
     private function readBuffer() : void {
@@ -287,10 +276,7 @@ class StarGateConnection extends Thread {
         return $this->starGateSocket;
     }
 
-    /**
-     * @return resource
-     */
-    public function getSocket(){
+    public function getSocket(): ?\Socket {
         return $this->socket;
     }
 
