@@ -5,7 +5,7 @@
     },
   "require": {
     "ext-sockets": "*",
-    "ext-pthreads": "*",
+    "ext-pmmpthread": "*",
     "ext-http": "*"
   },
     "scripts": {

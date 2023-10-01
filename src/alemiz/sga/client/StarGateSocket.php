@@ -17,6 +17,7 @@
 namespace alemiz\sga\client;
 
 use Exception;
+use pmmp\thread\ThreadSafe;
 use RuntimeException;
 use function socket_create;
 use function socket_last_error;
@@ -25,7 +26,7 @@ use const AF_INET;
 use const SOCK_STREAM;
 use const SOL_TCP;
 
-class StarGateSocket {
+class StarGateSocket extends ThreadSafe{
 
     /** @var StarGateConnection */
     private StarGateConnection $conn;
@@ -74,6 +75,8 @@ class StarGateSocket {
     }
 
     public function close() : void {
-        socket_close($this->conn->socket);
+        if ($this->conn->socket !== null){
+            socket_close($this->conn->socket);
+        }
     }
 }

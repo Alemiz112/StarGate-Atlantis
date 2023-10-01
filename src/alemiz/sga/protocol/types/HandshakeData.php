@@ -17,8 +17,9 @@
 namespace alemiz\sga\protocol\types;
 
 use alemiz\sga\protocol\HandshakePacket;
+use pmmp\thread\ThreadSafe;
 
-class HandshakeData {
+class HandshakeData extends ThreadSafe {
 
     public const SOFTWARE_POCKETMINE = 0;
     public const SOFTWARE_PMMP5 = 1;
