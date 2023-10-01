@@ -21,7 +21,7 @@ use alemiz\sga\protocol\HandshakePacket;
 class HandshakeData {
 
     public const SOFTWARE_POCKETMINE = 0;
-    public const SOFTWARE_PMMP4 = 1;
+    public const SOFTWARE_PMMP5 = 1;
 
     /**
      * @param HandshakePacket $packet
