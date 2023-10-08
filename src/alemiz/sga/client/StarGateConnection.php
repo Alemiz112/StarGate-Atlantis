@@ -19,10 +19,12 @@ namespace alemiz\sga\client;
 use alemiz\sga\codec\ProtocolCodec;
 use alemiz\sga\protocol\types\HandshakeData;
 use alemiz\sga\utils\StarGateException;
+use pmmp\thread\Thread as NativeThread;
+use pmmp\thread\ThreadSafeArray;
+use pocketmine\thread\log\ThreadSafeLogger;
 use pocketmine\thread\Thread;
+use pocketmine\utils\AssumptionFailedError;
 use pocketmine\utils\Binary;
-use Threaded;
-use ThreadedLogger;
 use function socket_read;
 use function strlen;
 use function substr;
@@ -37,13 +39,11 @@ class StarGateConnection extends Thread {
     public const STATE_AUTHENTICATED = 4;
     public const STATE_SHUTDOWN = 5;
 
-    /** @var ThreadedLogger */
-    private ThreadedLogger $logger;
+    private ThreadSafeLogger $logger;
     /** @var StarGateSocket */
     private StarGateSocket $starGateSocket;
 
-    /** @var resource */
-    public $socket;
+    public ?\Socket $socket;
 
     /** @var string */
     private string $address;
@@ -52,10 +52,8 @@ class StarGateConnection extends Thread {
     /** @var HandshakeData */
     private HandshakeData $handshakeData;
 
-    /** @var Threaded */
-    private Threaded $input;
-    /** @var Threaded */
-    private Threaded $output;
+    private ThreadSafeArray $input;
+    private ThreadSafeArray $output;
 
     /** @var string */
     private string $buffer = "";
@@ -65,21 +63,21 @@ class StarGateConnection extends Thread {
 
     /**
      * StarGateConnection constructor.
-     * @param ThreadedLogger $logger
+     * @param ThreadSafeLogger $logger
      * @param string $address
      * @param int $port
      * @param HandshakeData $handshakeData
      */
-    public function __construct(ThreadedLogger $logger, string $address, int $port, HandshakeData $handshakeData){
+    public function __construct(ThreadSafeLogger $logger, string $address, int $port, HandshakeData $handshakeData){
         $this->logger = $logger;
         $this->address = $address;
         $this->port = $port;
         $this->handshakeData = $handshakeData;
         $this->starGateSocket = new StarGateSocket($this, $this->address, $this->port);
 
-        $this->input = new Threaded();
-        $this->output = new Threaded();
-        $this->start(PTHREADS_INHERIT_NONE);
+        $this->input = new ThreadSafeArray();
+        $this->output = new ThreadSafeArray();
+        $this->start(NativeThread::INHERIT_NONE);
     }
 
     public function onRun() : void {
@@ -122,6 +120,11 @@ class StarGateConnection extends Thread {
         $error = socket_last_error();
         socket_clear_error($this->socket);
 
+        $socket = $this->socket;
+
+        if ($socket === null) {
+            goto error;
+        }
         if ($error === 10057 || $error === 10054 || $error === 10053){
             error:
             $this->getLogger()->info("§cConnection with StarGate server has disconnected unexpectedly!");
@@ -129,38 +132,22 @@ class StarGateConnection extends Thread {
             return;
         }
 
-        $data = @socket_read($this->socket, 65536, PHP_BINARY_READ);
+        if ($socket === null) {
+            throw new AssumptionFailedError("This should never happen");
+        }
+
+        $data = @socket_read($socket, 65536, PHP_BINARY_READ);
         if ($data !== ""){
             $this->buffer .= $data;
         }
 
         while (($packet = $this->outRead()) !== null && $packet !== ""){
-            if (@socket_write($this->socket, $packet) === false){
+            if (@socket_write($socket, $packet) === false){
                 goto error;
             }
         }
 
         $this->readBuffer();
-    }
-
-    /**
-     * @param string $buffer
-     * @param int $len
-     * @param int $offset
-     * @return int
-     */
-    private function verifyHeader(string $buffer, int $len, int $offset) : int {
-        if (($offset + 2) > $len) {
-            // No PacketId + Response info
-            return 0;
-        }
-
-        $index = 1; // PacketID
-        $supportsResponse = Binary::readBool($buffer[$offset + $index++]);
-        if ($supportsResponse) {
-            $index += 4; // Skip ResponseID
-        }
-        return $index;
     }
 
     private function readBuffer() : void {
@@ -289,17 +276,11 @@ class StarGateConnection extends Thread {
         return $this->starGateSocket;
     }
 
-    /**
-     * @return resource
-     */
-    public function getSocket(){
+    public function getSocket(): ?\Socket {
         return $this->socket;
     }
 
-    /**
-     * @return ThreadedLogger
-     */
-    public function getLogger(): ThreadedLogger {
+    public function getLogger(): ThreadSafeLogger {
         return $this->logger;
     }
 
